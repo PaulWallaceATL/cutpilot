@@ -14,7 +14,7 @@ export async function login(formData: FormData) {
       return { error: "Email and password are required" };
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -23,7 +23,8 @@ export async function login(formData: FormData) {
       return { error: error.message };
     }
 
-    redirect("/app/today");
+    // Return success instead of redirecting directly
+    return { success: true, userId: data.user?.id };
   } catch (error) {
     console.error("Login error:", error);
     return {
@@ -47,7 +48,7 @@ export async function signup(formData: FormData) {
       return { error: "Email and password are required" };
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -59,9 +60,16 @@ export async function signup(formData: FormData) {
       return { error: error.message };
     }
 
-    redirect("/onboarding");
+    // Return success instead of redirecting directly
+    // The client component will handle navigation
+    return { success: true, userId: data.user?.id };
   } catch (error) {
     console.error("Signup error:", error);
+    // Check if it's a redirect error (which is expected)
+    if (error && typeof error === "object" && "digest" in error) {
+      // This is a redirect, re-throw it
+      throw error;
+    }
     return {
       error:
         error instanceof Error

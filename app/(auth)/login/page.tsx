@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { login } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,15 +12,20 @@ import { Zap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    const result = await login(formData);
-    if (result?.error) {
-      toast.error(result.error);
-      setLoading(false);
-    }
+    startTransition(async () => {
+      const result = await login(formData);
+      if (result?.error) {
+        toast.error(result.error);
+      } else if (result?.success) {
+        toast.success("Signed in! Redirecting...");
+        router.push("/app/today");
+        router.refresh();
+      }
+    });
   }
 
   return (
@@ -55,8 +61,8 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? (
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Signing in...
