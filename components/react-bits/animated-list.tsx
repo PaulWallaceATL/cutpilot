@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Children } from "react";
 import { cn } from "@/lib/utils";
 
 interface AnimatedListProps {
-  children: React.ReactNode[];
+  children: React.ReactNode;
   className?: string;
   staggerDelay?: number;
   animation?: "fade" | "slide" | "scale";
@@ -17,14 +17,17 @@ export function AnimatedList({
   animation = "fade",
 }: AnimatedListProps) {
   const [visibleItems, setVisibleItems] = useState(0);
+  
+  // Convert children to array, handling both single children and arrays
+  const childrenArray = Children.toArray(children);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setVisibleItems(children.length);
+      setVisibleItems(childrenArray.length);
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [children.length]);
+  }, [childrenArray.length]);
 
   const animationClasses = {
     fade: "opacity-0 translate-y-4",
@@ -40,7 +43,7 @@ export function AnimatedList({
 
   return (
     <div className={className}>
-      {children.map((child, index) => (
+      {childrenArray.map((child, index) => (
         <div
           key={index}
           className={cn(
