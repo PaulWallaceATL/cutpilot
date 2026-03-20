@@ -96,19 +96,32 @@ export default function OnboardingPage() {
       const result = await completeOnboarding(data);
       clearTimeout(timeoutId);
       
+      console.log("Onboarding result:", result); // Debug log
+      
       if (result?.error) {
         toast.error(result.error);
         setGenerating(false);
-      } else if (result?.success) {
+        return;
+      }
+      
+      if (result?.success) {
         // Clear stored data on success
         if (typeof window !== "undefined") {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(`${STORAGE_KEY}_step`);
         }
         toast.success("Profile setup complete! Redirecting...");
-        router.push("/app/today");
-        router.refresh();
+        // Small delay to ensure toast is visible, then hard redirect
+        setTimeout(() => {
+          window.location.href = "/app/today";
+        }, 500);
+        return;
       }
+      
+      // No result or unexpected format
+      console.error("Unexpected result format:", result);
+      setGenerating(false);
+      toast.error("Unexpected response. Please check the console and try again.");
     } catch (error) {
       clearTimeout(timeoutId);
       setGenerating(false);

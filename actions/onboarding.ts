@@ -227,10 +227,15 @@ export async function completeOnboarding(data: OnboardingFormData) {
     }
   }
 
-  await supabase
+  const { error: profileError } = await supabase
     .from("profiles")
     .update({ onboarding_completed: true })
     .eq("id", user.id);
+
+  if (profileError) {
+    console.error("Failed to update profile:", profileError);
+    // Don't fail the whole flow if profile update fails - plan is already saved
+  }
 
   // Return success - client will handle redirect
   return { success: true };
