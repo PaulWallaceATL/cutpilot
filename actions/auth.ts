@@ -4,40 +4,71 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export async function login(formData: FormData) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  });
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-  if (error) {
-    return { error: error.message };
+    if (!email || !password) {
+      return { error: "Email and password are required" };
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    redirect("/app/today");
+  } catch (error) {
+    console.error("Login error:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to sign in. Please check your environment variables.",
+    };
   }
-
-  redirect("/app/today");
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const fullName = formData.get("full_name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const fullName = formData.get("full_name") as string;
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: fullName },
-    },
-  });
+    if (!email || !password) {
+      return { error: "Email and password are required" };
+    }
 
-  if (error) {
-    return { error: error.message };
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+      },
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    redirect("/onboarding");
+  } catch (error) {
+    console.error("Signup error:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create account. Please check your environment variables.",
+    };
   }
-
-  redirect("/onboarding");
 }
 
 export async function logout() {
