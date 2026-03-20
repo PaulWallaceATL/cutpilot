@@ -25,9 +25,14 @@ export async function completeOnboarding(data: OnboardingFormData) {
     .select("id")
     .limit(1);
 
-  if (tableCheckError && tableCheckError.code === "PGRST116") {
+  if (tableCheckError && (
+    tableCheckError.code === "PGRST116" || 
+    tableCheckError.message?.includes("Could not find the table") ||
+    tableCheckError.message?.includes("relation") ||
+    tableCheckError.message?.includes("does not exist")
+  )) {
     return { 
-      error: "Database tables not found. Please run the SQL schema in your Supabase project. Go to SQL Editor and run the contents of supabase/schema.sql" 
+      error: "⚠️ Database Setup Required: The database tables haven't been created yet. Please:\n\n1. Go to https://supabase.com/dashboard/project/qrduotmjbtxxxfonezkp/sql/new\n2. Copy the entire contents of supabase/schema.sql from your repo\n3. Paste it into the SQL Editor and click 'Run'\n\nThis will create all 22 tables needed for the app." 
     };
   }
 
