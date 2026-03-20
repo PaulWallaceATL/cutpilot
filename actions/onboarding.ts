@@ -19,6 +19,18 @@ export async function completeOnboarding(data: OnboardingFormData) {
     return { error: "Not authenticated" };
   }
 
+  // Verify database tables exist by checking if we can query user_preferences
+  const { error: tableCheckError } = await supabase
+    .from("user_preferences")
+    .select("id")
+    .limit(1);
+
+  if (tableCheckError && tableCheckError.code === "PGRST116") {
+    return { 
+      error: "Database tables not found. Please run the SQL schema in your Supabase project. Go to SQL Editor and run the contents of supabase/schema.sql" 
+    };
+  }
+
   const { injuries, ...prefs } = parsed.data;
 
   const { error: prefError } = await supabase
@@ -26,10 +38,15 @@ export async function completeOnboarding(data: OnboardingFormData) {
     .upsert({
       user_id: user.id,
       ...prefs,
+    }, {
+      onConflict: "user_id",
     });
 
   if (prefError) {
-    return { error: "Failed to save preferences" };
+    console.error("Failed to save preferences:", prefError);
+    return { 
+      error: `Failed to save preferences: ${prefError.message || "Database error. Please ensure the SQL schema has been run in Supabase."}` 
+    };
   }
 
   if (injuries.length > 0) {
@@ -42,15 +59,21 @@ export async function completeOnboarding(data: OnboardingFormData) {
       }))
     );
     if (injError) {
-      return { error: "Failed to save injuries" };
+      console.error("Failed to save injuries:", injError);
+      return { 
+        error: `Failed to save injuries: ${injError.message || "Database error"}` 
+      };
     }
   }
 
   let plan;
   try {
     plan = await generateInitialPlan(parsed.data);
-  } catch {
-    return { error: "Failed to generate plan. Please try again." };
+  } catch (error) {
+    console.error("Failed to generate plan:", error);
+    return { 
+      error: `Failed to generate plan: ${error instanceof Error ? error.message : "Please check your OpenAI API key and try again."}` 
+    };
   }
 
   const { error: prefUpdateError } = await supabase
@@ -64,7 +87,10 @@ export async function completeOnboarding(data: OnboardingFormData) {
     .eq("user_id", user.id);
 
   if (prefUpdateError) {
-    return { error: "Failed to update macro targets" };
+    console.error("Failed to update macro targets:", prefUpdateError);
+    return { 
+      error: `Failed to update macro targets: ${prefUpdateError.message || "Database error"}` 
+    };
   }
 
   const { data: workoutPlan, error: wpError } = await supabase
@@ -81,7 +107,10 @@ export async function completeOnboarding(data: OnboardingFormData) {
     .single();
 
   if (wpError || !workoutPlan) {
-    return { error: "Failed to save workout plan" };
+    console.error("Failed to save workout plan:", wpError);
+    return { 
+      error: `Failed to save workout plan: ${wpError?.message || "Database error. Please ensure the SQL schema has been run."}` 
+    };
   }
 
   for (const day of plan.workout_plan.days) {
@@ -131,7 +160,10 @@ export async function completeOnboarding(data: OnboardingFormData) {
     .single();
 
   if (mpError || !mealPlan) {
-    return { error: "Failed to save meal plan" };
+    console.error("Failed to save meal plan:", mpError);
+    return { 
+      error: `Failed to save meal plan: ${mpError?.message || "Database error. Please ensure the SQL schema has been run."}` 
+    };
   }
 
   for (const day of plan.meal_plan.days) {
