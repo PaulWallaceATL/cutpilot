@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const assistantResponseSchema = z.object({
   message: z.string().describe("The assistant's response message"),
-  suggestions: z.array(z.string()).optional().describe("Optional follow-up suggestions"),
+  suggestions: z.array(z.string()).nullable().optional().describe("Optional follow-up suggestions"),
 });
 
 export const workoutAssistantResponseSchema = z.object({
@@ -13,14 +13,14 @@ export const workoutAssistantResponseSchema = z.object({
       modification: z.string(),
       reason: z.string(),
     })
-  ).optional().describe("Optional exercise modifications"),
-  suggestions: z.array(z.string()).optional(),
+  ).nullable().optional().describe("Optional exercise modifications"),
+  suggestions: z.array(z.string()).nullable().optional(),
 });
 
 export const mealAssistantResponseSchema = z.object({
   message: z.string().describe("The assistant's response about the meal"),
-  nutrition_tips: z.array(z.string()).optional().describe("Optional nutrition tips"),
-  suggestions: z.array(z.string()).optional(),
+  nutrition_tips: z.array(z.string()).nullable().optional().describe("Optional nutrition tips"),
+  suggestions: z.array(z.string()).nullable().optional(),
 });
 
 export type AIAssistantResponse = z.infer<typeof assistantResponseSchema>;

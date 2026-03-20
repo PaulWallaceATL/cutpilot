@@ -6,8 +6,8 @@ export const workoutExerciseSchema = z.object({
   sets: z.number().min(1).max(10).describe("Number of sets"),
   reps: z.string().describe("Rep range or scheme, e.g. '8-12' or '5x5'"),
   rest_seconds: z.number().min(15).max(300).describe("Rest time between sets in seconds"),
-  weight_suggestion: z.string().optional().describe("Suggested weight or intensity"),
-  notes: z.string().optional().describe("Form cues or notes"),
+  weight_suggestion: z.string().nullable().optional().describe("Suggested weight or intensity"),
+  notes: z.string().nullable().optional().describe("Form cues or notes"),
 });
 
 export const workoutDaySchema = z.object({

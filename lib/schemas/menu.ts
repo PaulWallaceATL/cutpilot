@@ -12,7 +12,7 @@ export const menuRecommendationSchema = z.object({
 });
 
 export const menuAnalysisSchema = z.object({
-  restaurant_name: z.string().optional().describe("Detected restaurant name if visible"),
+  restaurant_name: z.string().nullable().optional().describe("Detected restaurant name if visible"),
   summary: z.string().describe("Overall summary of the menu analysis"),
   recommendations: z.array(menuRecommendationSchema)
     .min(1)
