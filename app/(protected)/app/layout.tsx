@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { AppHeader } from "@/components/layout/app-header";
+import { OnboardingCheck } from "@/components/shared/onboarding-check";
 
 export default function AppLayout({
   children,
@@ -17,6 +18,7 @@ export default function AppLayout({
         </main>
       </div>
       <BottomNav />
+      <OnboardingCheck />
     </div>
   );
 }

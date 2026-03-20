@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { MacroSummary } from "@/components/shared/macro-bar";
 import { Separator } from "@/components/ui/separator";
-import { User, Target, Dumbbell, UtensilsCrossed } from "lucide-react";
+import { User, Target, Dumbbell, UtensilsCrossed, Edit } from "lucide-react";
 import { FITNESS_GOAL_LABELS, EXPERIENCE_LABELS } from "@/lib/schemas/onboarding";
 
 export default async function ProfilePage() {
@@ -32,9 +34,46 @@ export default async function ProfilePage() {
     .eq("user_id", user.id)
     .eq("is_active", true);
 
+  const onboardingIncomplete = profile && !profile.onboarding_completed;
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Profile</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Profile</h1>
+        {onboardingIncomplete && (
+          <Link
+            href="/onboarding"
+            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-8 text-sm font-medium hover:bg-primary/80 transition-all gap-2"
+          >
+            <Edit className="h-4 w-4" />
+            Complete Setup
+          </Link>
+        )}
+      </div>
+
+      {onboardingIncomplete && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-primary/10 p-2">
+                <Target className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Complete Your Profile</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Finish setting up your fitness goals, body stats, and preferences to get personalized workout and meal plans.
+                </p>
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-7 text-[0.8rem] font-medium hover:bg-primary/80 transition-all"
+                >
+                  Go to Setup
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

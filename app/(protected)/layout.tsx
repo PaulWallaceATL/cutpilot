@@ -16,18 +16,8 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  const headersList = await headers();
-  const pathname = headersList.get("x-next-pathname") || "";
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("onboarding_completed")
-    .eq("id", user.id)
-    .single();
-
-  if (profile && !profile.onboarding_completed && !pathname.includes("/onboarding")) {
-    redirect("/onboarding");
-  }
+  // Don't force redirect - let the modal handle it
+  // Users can still navigate around, but will see the onboarding prompt
 
   return <>{children}</>;
 }

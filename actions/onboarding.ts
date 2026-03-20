@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
 import { onboardingSchema, type OnboardingFormData } from "@/lib/schemas/onboarding";
 import { generateInitialPlan } from "@/lib/openai/generate-plan";
 
@@ -196,5 +195,6 @@ export async function completeOnboarding(data: OnboardingFormData) {
     .update({ onboarding_completed: true })
     .eq("id", user.id);
 
-  redirect("/app/today");
+  // Return success - client will handle redirect
+  return { success: true };
 }

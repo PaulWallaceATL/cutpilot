@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { StepGoals } from "@/components/onboarding/step-goals";
@@ -16,6 +17,7 @@ import type { OnboardingFormData } from "@/lib/schemas/onboarding";
 const TOTAL_STEPS = 4;
 
 export default function OnboardingPage() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [data, setData] = useState<OnboardingFormData>({
@@ -46,6 +48,10 @@ export default function OnboardingPage() {
     if (result?.error) {
       toast.error(result.error);
       setGenerating(false);
+    } else if (result?.success) {
+      toast.success("Profile setup complete! Generating your plan...");
+      router.push("/app/today");
+      router.refresh();
     }
   }
 
