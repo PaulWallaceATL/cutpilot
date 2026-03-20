@@ -64,11 +64,11 @@ export default function LandingPage() {
           <Link href="/login" className="inline-flex items-center justify-center rounded-lg px-2.5 h-8 text-sm font-medium hover:bg-muted hover:text-foreground transition-all">
             Log in
           </Link>
-          <GradientButton asChild gradient="primary">
-            <Link href="/signup" className="inline-flex items-center justify-center px-2.5 h-8 text-sm font-medium">
+          <Link href="/signup">
+            <GradientButton gradient="primary">
               Get Started
-            </Link>
-          </GradientButton>
+            </GradientButton>
+          </Link>
         </div>
       </header>
 
@@ -89,11 +89,11 @@ export default function LandingPage() {
               contextual AI — all in one premium app.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <GradientButton asChild gradient="rainbow" size="lg">
-                <Link href="/signup" className="inline-flex items-center justify-center px-6 h-10 text-sm font-medium">
+              <Link href="/signup">
+                <GradientButton gradient="rainbow" size="lg">
                   Start Your Cut Free
-                </Link>
-              </GradientButton>
+                </GradientButton>
+              </Link>
               <Link href="/login" className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-9 text-sm font-medium hover:bg-muted transition-all">
                 I have an account
               </Link>
@@ -138,11 +138,11 @@ export default function LandingPage() {
             <p className="mt-3 text-muted-foreground">
               Join CutPilot and let AI handle the planning while you handle the execution.
             </p>
-            <GradientButton asChild gradient="primary" size="lg" className="mt-8">
-              <Link href="/signup" className="inline-flex items-center justify-center px-6 h-10 text-sm font-medium">
+            <Link href="/signup">
+              <GradientButton gradient="primary" size="lg" className="mt-8">
                 Get Started Now
-              </Link>
-            </GradientButton>
+              </GradientButton>
+            </Link>
           </div>
         </section>
       </main>

@@ -2,22 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from "react";
-import { type VariantProps } from "class-variance-authority";
-import { buttonVariants } from "@/components/ui/button";
+import { forwardRef, type ComponentProps } from "react";
 
-interface GlowButtonProps 
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+type ButtonProps = ComponentProps<typeof Button>;
+
+interface GlowButtonProps extends ButtonProps {
   glowColor?: string;
-  children?: ReactNode;
 }
 
 export const GlowButton = forwardRef<HTMLButtonElement, GlowButtonProps>(
   ({ className, glowColor, children, ...props }, ref) => {
-    const defaultGlow = "hsl(var(--primary))";
-    const glow = glowColor || defaultGlow;
-    
+    const glow = glowColor || "hsl(var(--primary))";
+
     return (
       <Button
         ref={ref}

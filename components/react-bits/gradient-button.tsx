@@ -2,15 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from "react";
-import { type VariantProps } from "class-variance-authority";
-import { buttonVariants } from "@/components/ui/button";
+import { forwardRef, type ComponentProps } from "react";
 
-interface GradientButtonProps 
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+type ButtonProps = ComponentProps<typeof Button>;
+
+interface GradientButtonProps extends ButtonProps {
   gradient?: "primary" | "rainbow" | "purple" | "blue";
-  children?: ReactNode;
 }
 
 export const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
