@@ -1,10 +1,14 @@
 "use client";
 
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from "react";
+import { type VariantProps } from "class-variance-authority";
+import { buttonVariants } from "@/components/ui/button";
 
-interface GlowButtonProps extends ButtonProps {
+interface GlowButtonProps 
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   glowColor?: string;
   children?: ReactNode;
 }

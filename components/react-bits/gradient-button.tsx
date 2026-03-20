@@ -1,10 +1,14 @@
 "use client";
 
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { forwardRef, type ReactNode } from "react";
+import { forwardRef, type ReactNode, type ButtonHTMLAttributes } from "react";
+import { type VariantProps } from "class-variance-authority";
+import { buttonVariants } from "@/components/ui/button";
 
-interface GradientButtonProps extends ButtonProps {
+interface GradientButtonProps 
+  extends ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   gradient?: "primary" | "rainbow" | "purple" | "blue";
   children?: ReactNode;
 }
