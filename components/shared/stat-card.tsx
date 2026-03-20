@@ -1,6 +1,4 @@
-"use client";
-
-import { AnimatedCard, CardContent } from "@/components/react-bits/animated-card";
+import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +12,7 @@ interface StatCardProps {
 
 export function StatCard({ icon: Icon, label, value, subtitle, className }: StatCardProps) {
   return (
-    <AnimatedCard hoverEffect="scale" className={cn("", className)}>
+    <Card className={cn("transition-all duration-300 hover:scale-[1.02] hover:shadow-lg", className)}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <div className="rounded-lg bg-primary/10 p-2 transition-transform hover:scale-110">
@@ -22,13 +20,13 @@ export function StatCard({ icon: Icon, label, value, subtitle, className }: Stat
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-lg font-bold transition-all hover:scale-105">{value}</p>
+            <p className="text-lg font-bold">{value}</p>
             {subtitle && (
               <p className="text-xs text-muted-foreground">{subtitle}</p>
             )}
           </div>
         </div>
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }
