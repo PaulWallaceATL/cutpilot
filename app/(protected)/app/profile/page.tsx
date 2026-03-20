@@ -34,7 +34,7 @@ export default async function ProfilePage() {
     .eq("user_id", user.id)
     .eq("is_active", true);
 
-  const onboardingIncomplete = profile && !profile.onboarding_completed;
+  const onboardingIncomplete = !profile?.onboarding_completed;
 
   return (
     <div className="space-y-6">
@@ -75,6 +75,30 @@ export default async function ProfilePage() {
         </Card>
       )}
 
+      {!onboardingIncomplete && !prefs && (
+        <Card className="border-yellow-500/50 bg-yellow-500/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3">
+              <div className="rounded-full bg-yellow-500/10 p-2">
+                <Target className="h-5 w-5 text-yellow-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold mb-1">Profile Setup Incomplete</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Your onboarding data wasn&apos;t found. Please complete the setup to see your full profile.
+                </p>
+                <Link
+                  href="/onboarding"
+                  className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-7 text-[0.8rem] font-medium hover:bg-primary/80 transition-all"
+                >
+                  Complete Setup
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -85,36 +109,48 @@ export default async function ProfilePage() {
         <CardContent className="space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Name</span>
-            <span>{profile?.full_name || "Not set"}</span>
+            <span>{profile?.full_name || user.user_metadata?.full_name || "Not set"}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Email</span>
-            <span>{profile?.email}</span>
+            <span>{profile?.email || user.email || "Not set"}</span>
           </div>
-          {prefs && (
+          {prefs ? (
             <>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Age</span>
-                <span>{prefs.age}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Height</span>
-                <span>{prefs.height_cm} cm</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Weight</span>
-                <span>{prefs.weight_kg} kg</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Target</span>
-                <span>{prefs.target_weight_kg} kg</span>
-              </div>
+              {prefs.age && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Age</span>
+                  <span>{prefs.age}</span>
+                </div>
+              )}
+              {prefs.height_cm && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Height</span>
+                  <span>{prefs.height_cm} cm</span>
+                </div>
+              )}
+              {prefs.weight_kg && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Weight</span>
+                  <span>{prefs.weight_kg} kg</span>
+                </div>
+              )}
+              {prefs.target_weight_kg && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Target Weight</span>
+                  <span>{prefs.target_weight_kg} kg</span>
+                </div>
+              )}
             </>
+          ) : (
+            <div className="text-sm text-muted-foreground py-2">
+              Complete onboarding to see your body stats
+            </div>
           )}
         </CardContent>
       </Card>
 
-      {prefs && (
+      {prefs ? (
         <>
           <Card>
             <CardHeader>
@@ -124,21 +160,39 @@ export default async function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Goal</span>
-                <Badge variant="secondary">
-                  {FITNESS_GOAL_LABELS[prefs.fitness_goal] || prefs.fitness_goal}
-                </Badge>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Experience</span>
-                <span>{EXPERIENCE_LABELS[prefs.experience_level] || prefs.experience_level}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Diet</span>
-                <span className="capitalize">{prefs.diet_type}</span>
-              </div>
-              {prefs.dietary_restrictions?.length > 0 && (
+              {prefs.fitness_goal && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Goal</span>
+                  <Badge variant="secondary">
+                    {FITNESS_GOAL_LABELS[prefs.fitness_goal] || prefs.fitness_goal}
+                  </Badge>
+                </div>
+              )}
+              {prefs.experience_level && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Experience</span>
+                  <span>{EXPERIENCE_LABELS[prefs.experience_level] || prefs.experience_level}</span>
+                </div>
+              )}
+              {prefs.diet_type && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Diet</span>
+                  <span className="capitalize">{prefs.diet_type}</span>
+                </div>
+              )}
+              {prefs.activity_level && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Activity Level</span>
+                  <span className="capitalize">{prefs.activity_level}</span>
+                </div>
+              )}
+              {prefs.workout_days_per_week && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Workout Days/Week</span>
+                  <span>{prefs.workout_days_per_week}</span>
+                </div>
+              )}
+              {prefs.dietary_restrictions && prefs.dietary_restrictions.length > 0 && (
                 <div className="flex justify-between text-sm items-start">
                   <span className="text-muted-foreground">Restrictions</span>
                   <div className="flex flex-wrap gap-1 justify-end">
@@ -153,23 +207,39 @@ export default async function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Daily Macro Targets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MacroSummary
-                calories={{ current: 0, target: prefs.calorie_target || 2000 }}
-                protein={{ current: 0, target: prefs.protein_target_g || 150 }}
-                carbs={{ current: 0, target: prefs.carb_target_g || 200 }}
-                fat={{ current: 0, target: prefs.fat_target_g || 70 }}
-              />
-            </CardContent>
-          </Card>
+          {(prefs.calorie_target || prefs.protein_target_g || prefs.carb_target_g || prefs.fat_target_g) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Daily Macro Targets</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MacroSummary
+                  calories={{ current: 0, target: prefs.calorie_target || 2000 }}
+                  protein={{ current: 0, target: prefs.protein_target_g || 150 }}
+                  carbs={{ current: 0, target: prefs.carb_target_g || 200 }}
+                  fat={{ current: 0, target: prefs.fat_target_g || 70 }}
+                />
+              </CardContent>
+            </Card>
+          )}
         </>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Target className="h-4 w-4" />
+              Goals & Preferences
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              Complete onboarding to see your goals and preferences
+            </p>
+          </CardContent>
+        </Card>
       )}
 
-      {injuries && injuries.length > 0 && (
+      {injuries && injuries.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Active Injuries</CardTitle>
@@ -194,7 +264,16 @@ export default async function ProfilePage() {
             ))}
           </CardContent>
         </Card>
-      )}
+      ) : prefs ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Active Injuries</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground py-2">No active injuries recorded</p>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

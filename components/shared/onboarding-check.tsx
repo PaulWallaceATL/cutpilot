@@ -16,6 +16,7 @@ export function OnboardingCheck() {
       // Don't show modal on onboarding page itself or auth pages
       if (pathname === "/onboarding" || pathname === "/login" || pathname === "/signup") {
         setShowModal(false);
+        setOnboardingCompleted(true);
         return;
       }
 
@@ -24,15 +25,19 @@ export function OnboardingCheck() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) return;
+      if (!user) {
+        setOnboardingCompleted(true);
+        return;
+      }
 
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("onboarding_completed")
         .eq("id", user.id)
         .single();
 
-      if (profile && !profile.onboarding_completed) {
+      // If profile doesn't exist or onboarding not completed, show modal
+      if (!profile || !profile.onboarding_completed) {
         setOnboardingCompleted(false);
         
         // Calculate progress based on what's filled in
@@ -53,7 +58,9 @@ export function OnboardingCheck() {
         setProgress((filledSteps / 3) * 100);
         
         // Show modal after a short delay to let the page load
-        setTimeout(() => setShowModal(true), 1000);
+        // Show immediately on profile page
+        const delay = pathname?.includes("/profile") ? 300 : 1000;
+        setTimeout(() => setShowModal(true), delay);
       } else {
         setOnboardingCompleted(true);
         setShowModal(false);
