@@ -43,12 +43,15 @@ export function OnboardingCheck() {
         // Handle errors gracefully - don't block the app
         if (profileError) {
           console.error("Error checking onboarding status:", profileError);
-          // If it's a 406, 404, or table not found error, assume onboarding is complete to avoid blocking
+          // If it's a table not found error or other expected errors, assume onboarding is complete to avoid blocking
+          const errorMessage = profileError.message || "";
           if (
             profileError.code === "PGRST116" || 
-            profileError.status === 406 ||
-            profileError.status === 404 ||
-            profileError.message?.includes("Could not find the table")
+            errorMessage.includes("Could not find the table") ||
+            errorMessage.includes("relation") ||
+            errorMessage.includes("does not exist") ||
+            errorMessage.includes("406") ||
+            errorMessage.includes("404")
           ) {
             setOnboardingCompleted(true);
             return;
