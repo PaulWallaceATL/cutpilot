@@ -99,7 +99,7 @@ export default function SignupPage() {
             </Link>
           </p>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     </>
   );
 }

@@ -87,7 +87,7 @@ export default function LoginPage() {
             </Link>
           </p>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     </>
   );
 }
