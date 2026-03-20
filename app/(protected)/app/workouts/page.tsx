@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Dumbbell, ChevronRight } from "lucide-react";
+import { AnimatedCard, CardContent as AnimatedCardContent, CardHeader as AnimatedCardHeader, CardTitle as AnimatedCardTitle } from "@/components/react-bits/animated-card";
+import { AnimatedList } from "@/components/react-bits/animated-list";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
 
 export default async function WorkoutsPage() {
   const supabase = await createClient();
@@ -42,25 +45,27 @@ export default async function WorkoutsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Workouts</h1>
+        <h1 className="text-2xl font-bold">
+          <StaggeredText text="Workouts" as="span" />
+        </h1>
         <p className="text-muted-foreground">{plan.name}</p>
       </div>
 
-      <div className="space-y-3">
+      <AnimatedList className="space-y-3" animation="slide" staggerDelay={80}>
         {days?.map((day) => (
           <Link key={day.id} href={`/app/workouts/${day.id}`}>
-            <Card className="transition-colors hover:border-primary/30">
-              <CardContent className="flex items-center justify-between p-4">
+            <AnimatedCard hoverEffect="lift" className="w-full">
+              <AnimatedCardContent className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 transition-transform hover:scale-110">
                     <span className="text-sm font-bold text-primary">
                       D{day.day_number}
                     </span>
                   </div>
                   <div>
-                    <CardHeader className="p-0">
-                      <CardTitle className="text-base">{day.name}</CardTitle>
-                    </CardHeader>
+                    <AnimatedCardHeader className="p-0">
+                      <AnimatedCardTitle className="text-base">{day.name}</AnimatedCardTitle>
+                    </AnimatedCardHeader>
                     <div className="flex items-center gap-2 mt-1">
                       {day.focus && (
                         <Badge variant="secondary" className="text-xs">
@@ -73,12 +78,12 @@ export default async function WorkoutsPage() {
                     </div>
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </CardContent>
-            </Card>
+                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+              </AnimatedCardContent>
+            </AnimatedCard>
           </Link>
         ))}
-      </div>
+      </AnimatedList>
     </div>
   );
 }

@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Zap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { GradientButton } from "@/components/react-bits/gradient-button";
+import { AnimatedCard } from "@/components/react-bits/animated-card";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -35,9 +38,11 @@ export default function SignupPage() {
         <span className="text-xl font-bold">CutPilot</span>
       </div>
 
-      <Card>
+      <AnimatedCard hoverEffect="glow" className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-center">Create your account</CardTitle>
+          <CardTitle className="text-center">
+            <StaggeredText text="Create your account" as="span" />
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form action={handleSubmit} className="space-y-4">
@@ -49,6 +54,7 @@ export default function SignupPage() {
                 type="text"
                 placeholder="John Doe"
                 required
+                className="transition-all focus:scale-[1.02]"
               />
             </div>
             <div className="space-y-2">
@@ -59,6 +65,7 @@ export default function SignupPage() {
                 type="email"
                 placeholder="you@example.com"
                 required
+                className="transition-all focus:scale-[1.02]"
               />
             </div>
             <div className="space-y-2">
@@ -70,9 +77,10 @@ export default function SignupPage() {
                 placeholder="••••••••"
                 minLength={6}
                 required
+                className="transition-all focus:scale-[1.02]"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <GradientButton type="submit" className="w-full" disabled={isPending} gradient="rainbow">
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -81,7 +89,7 @@ export default function SignupPage() {
               ) : (
                 "Create account"
               )}
-            </Button>
+            </GradientButton>
           </form>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">

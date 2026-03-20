@@ -1,9 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SetLogger } from "./set-logger";
 import type { WorkoutExercise } from "@/types/database";
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
 
 interface ExerciseCardProps {
   exercise: WorkoutExercise;
@@ -22,7 +22,7 @@ export function ExerciseCard({
   existingSets,
 }: ExerciseCardProps) {
   return (
-    <Card>
+    <AnimatedCard hoverEffect="lift">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{exercise.name}</CardTitle>
@@ -51,6 +51,6 @@ export function ExerciseCard({
           existingSets={existingSets}
         />
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }

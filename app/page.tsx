@@ -8,6 +8,10 @@ import {
   ShoppingCart,
   ScanLine,
 } from "lucide-react";
+import { GradientButton } from "@/components/react-bits/gradient-button";
+import { AnimatedCard } from "@/components/react-bits/animated-card";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
+import { AnimatedList } from "@/components/react-bits/animated-list";
 
 const features = [
   {
@@ -60,9 +64,11 @@ export default function LandingPage() {
           <Link href="/login" className="inline-flex items-center justify-center rounded-lg px-2.5 h-8 text-sm font-medium hover:bg-muted hover:text-foreground transition-all">
             Log in
           </Link>
-          <Link href="/signup" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-8 text-sm font-medium hover:bg-primary/80 transition-all">
-            Get Started
-          </Link>
+          <GradientButton asChild gradient="primary">
+            <Link href="/signup" className="inline-flex items-center justify-center px-2.5 h-8 text-sm font-medium">
+              Get Started
+            </Link>
+          </GradientButton>
         </div>
       </header>
 
@@ -74,7 +80,8 @@ export default function LandingPage() {
               AI-Powered Fitness & Nutrition
             </div>
             <h1 className="text-4xl font-bold tracking-tight md:text-6xl">
-              Your cut, <span className="text-primary">executed.</span>
+              <StaggeredText text="Your cut, " as="span" />
+              <StaggeredText text="executed." as="span" className="text-primary" delay={300} />
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
               CutPilot generates personalized workout and meal plans, tracks
@@ -82,9 +89,11 @@ export default function LandingPage() {
               contextual AI — all in one premium app.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/signup" className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-9 text-sm font-medium hover:bg-primary/80 transition-all">
-                Start Your Cut Free
-              </Link>
+              <GradientButton asChild gradient="rainbow" size="lg">
+                <Link href="/signup" className="inline-flex items-center justify-center px-6 h-10 text-sm font-medium">
+                  Start Your Cut Free
+                </Link>
+              </GradientButton>
               <Link href="/login" className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-9 text-sm font-medium hover:bg-muted transition-all">
                 I have an account
               </Link>
@@ -101,11 +110,12 @@ export default function LandingPage() {
               From AI plan generation to daily tracking — one app, zero guesswork.
             </p>
 
-            <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <AnimatedList className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" animation="fade" staggerDelay={100}>
               {features.map((feature) => (
-                <div
+                <AnimatedCard
                   key={feature.title}
-                  className="rounded-xl border bg-card p-6 transition-colors hover:border-primary/30"
+                  hoverEffect="lift"
+                  className="p-6"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                     <feature.icon className="h-5 w-5 text-primary" />
@@ -114,9 +124,9 @@ export default function LandingPage() {
                   <p className="mt-2 text-sm text-muted-foreground">
                     {feature.description}
                   </p>
-                </div>
+                </AnimatedCard>
               ))}
-            </div>
+            </AnimatedList>
           </div>
         </section>
 
@@ -128,9 +138,11 @@ export default function LandingPage() {
             <p className="mt-3 text-muted-foreground">
               Join CutPilot and let AI handle the planning while you handle the execution.
             </p>
-            <Link href="/signup" className="mt-8 inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-9 text-sm font-medium hover:bg-primary/80 transition-all">
-              Get Started Now
-            </Link>
+            <GradientButton asChild gradient="primary" size="lg" className="mt-8">
+              <Link href="/signup" className="inline-flex items-center justify-center px-6 h-10 text-sm font-medium">
+                Get Started Now
+              </Link>
+            </GradientButton>
           </div>
         </section>
       </main>

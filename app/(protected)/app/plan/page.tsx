@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +11,10 @@ import { regenerateWorkout, regenerateMeal } from "@/actions/plan";
 import { createClient } from "@/lib/supabase/client";
 import { Dumbbell, UtensilsCrossed, RefreshCw, Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
+import { GradientButton } from "@/components/react-bits/gradient-button";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
+import { AnimatedList } from "@/components/react-bits/animated-list";
 
 interface WorkoutPlan {
   id: string;
@@ -158,16 +160,20 @@ export default function PlanPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Plan</h1>
-      <p className="text-muted-foreground">
-        View and regenerate your workout or meal plan. Optionally provide feedback so the
-        AI can make adjustments.
-      </p>
+      <div>
+        <h1 className="text-2xl font-bold">
+          <StaggeredText text="My Plan" as="span" />
+        </h1>
+        <p className="text-muted-foreground">
+          View and regenerate your workout or meal plan. Optionally provide feedback so the
+          AI can make adjustments.
+        </p>
+      </div>
 
-      <Card>
+      <AnimatedCard hoverEffect="glow">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Dumbbell className="h-5 w-5" />
+            <Dumbbell className="h-5 w-5 transition-transform hover:scale-110" />
             Workout Plan
           </CardTitle>
         </CardHeader>
@@ -191,15 +197,15 @@ export default function PlanPage() {
                 {workoutDays.length > 0 && (
                   <div className="space-y-2 mt-4">
                     <Label className="text-xs">Workout Days</Label>
-                    <div className="space-y-2">
+                    <AnimatedList className="space-y-2" animation="slide" staggerDelay={50}>
                       {workoutDays.map((day) => (
                         <Link
                           key={day.id}
                           href={`/app/workouts/${day.id}`}
-                          className="flex items-center justify-between p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+                          className="flex items-center justify-between p-2 rounded-lg border border-border hover:bg-muted transition-all hover:scale-[1.02]"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10">
+                            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10 transition-transform hover:scale-110">
                               <span className="text-xs font-bold text-primary">
                                 D{day.day_number}
                               </span>
@@ -213,10 +219,10 @@ export default function PlanPage() {
                               )}
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
                         </Link>
                       ))}
-                    </div>
+                    </AnimatedList>
                   </div>
                 )}
               </div>
@@ -235,10 +241,11 @@ export default function PlanPage() {
               placeholder="e.g. I want more leg exercises, less shoulder work, shorter sessions..."
             />
           </div>
-          <Button
+          <GradientButton
             onClick={handleRegenerateWorkout}
             disabled={loadingWorkout}
             className="w-full"
+            gradient="rainbow"
           >
             {loadingWorkout ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -246,16 +253,16 @@ export default function PlanPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
             )}
             {loadingWorkout ? "Generating..." : "Regenerate Workout Plan"}
-          </Button>
+          </GradientButton>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       <Separator />
 
-      <Card>
+      <AnimatedCard hoverEffect="glow">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <UtensilsCrossed className="h-5 w-5" />
+            <UtensilsCrossed className="h-5 w-5 transition-transform hover:scale-110" />
             Meal Plan
           </CardTitle>
         </CardHeader>
@@ -319,10 +326,11 @@ export default function PlanPage() {
               placeholder="e.g. More variety, simpler recipes, more protein, less prep time..."
             />
           </div>
-          <Button
+          <GradientButton
             onClick={handleRegenerateMeal}
             disabled={loadingMeal}
             className="w-full"
+            gradient="purple"
           >
             {loadingMeal ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -330,9 +338,9 @@ export default function PlanPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
             )}
             {loadingMeal ? "Generating..." : "Regenerate Meal Plan"}
-          </Button>
+          </GradientButton>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     </div>
   );
 }

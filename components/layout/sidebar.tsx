@@ -15,6 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatedList } from "@/components/react-bits/animated-list";
 
 const navItems = [
   { href: "/app/today", label: "Today", icon: CalendarCheck },
@@ -39,25 +40,31 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
-        {navItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                isActive
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          );
-        })}
+        <AnimatedList className="space-y-1" animation="slide" staggerDelay={50}>
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || pathname.startsWith(item.href + "/");
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-300",
+                  "hover:scale-105",
+                  isActive
+                    ? "bg-primary/10 text-primary font-medium shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <item.icon className={cn(
+                  "h-4 w-4 transition-transform duration-300",
+                  isActive && "scale-110"
+                )} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </AnimatedList>
       </nav>
     </aside>
   );

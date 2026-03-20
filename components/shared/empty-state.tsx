@@ -1,4 +1,8 @@
+"use client";
+
 import type { LucideIcon } from "lucide-react";
+import { AnimatedCard } from "@/components/react-bits/animated-card";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -14,11 +18,13 @@ export function EmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-12 text-center">
-      <Icon className="h-12 w-12 text-muted-foreground/50" />
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
+    <AnimatedCard hoverEffect="glow" className="flex flex-col items-center justify-center border-dashed p-12 text-center">
+      <Icon className="h-12 w-12 text-muted-foreground/50 transition-transform hover:scale-110" />
+      <h3 className="mt-4 text-lg font-semibold">
+        <StaggeredText text={title} as="span" />
+      </h3>
       <p className="mt-2 text-sm text-muted-foreground max-w-sm">{description}</p>
       {action && <div className="mt-6">{action}</div>}
-    </div>
+    </AnimatedCard>
   );
 }

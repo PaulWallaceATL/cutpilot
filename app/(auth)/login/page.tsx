@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Zap, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { GradientButton } from "@/components/react-bits/gradient-button";
+import { AnimatedCard } from "@/components/react-bits/animated-card";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,9 +38,11 @@ export default function LoginPage() {
         <span className="text-xl font-bold">CutPilot</span>
       </div>
 
-      <Card>
+      <AnimatedCard hoverEffect="glow" className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-center">Welcome back</CardTitle>
+          <CardTitle className="text-center">
+            <StaggeredText text="Welcome back" as="span" />
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form action={handleSubmit} className="space-y-4">
@@ -49,6 +54,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="you@example.com"
                 required
+                className="transition-all focus:scale-[1.02]"
               />
             </div>
             <div className="space-y-2">
@@ -59,9 +65,10 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 required
+                className="transition-all focus:scale-[1.02]"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <GradientButton type="submit" className="w-full" disabled={isPending} gradient="primary">
               {isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -70,7 +77,7 @@ export default function LoginPage() {
               ) : (
                 "Sign in"
               )}
-            </Button>
+            </GradientButton>
           </form>
 
           <p className="mt-4 text-center text-sm text-muted-foreground">

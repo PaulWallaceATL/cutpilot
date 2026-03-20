@@ -5,6 +5,8 @@ import { TodayWorkout } from "./today-workout";
 import { TodayMeals } from "./today-meals";
 import { StatCard } from "@/components/shared/stat-card";
 import { Flame, Target, Dumbbell, UtensilsCrossed } from "lucide-react";
+import { StaggeredText } from "@/components/react-bits/staggered-text";
+import { AnimatedList } from "@/components/react-bits/animated-list";
 
 export default async function TodayPage() {
   const supabase = await createClient();
@@ -48,7 +50,7 @@ export default async function TodayPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">
-          Today
+          <StaggeredText text="Today" as="span" />
         </h1>
         <p className="text-muted-foreground">
           {new Date().toLocaleDateString("en-US", {
@@ -59,7 +61,7 @@ export default async function TodayPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <AnimatedList className="grid grid-cols-2 gap-3 sm:grid-cols-4" animation="fade" staggerDelay={100}>
         <StatCard
           icon={Target}
           label="Daily Goal"
@@ -84,7 +86,7 @@ export default async function TodayPage() {
           value={mealsToday ?? 0}
           subtitle="logged today"
         />
-      </div>
+      </AnimatedList>
 
       {checklist && <ChecklistCard checklist={checklist} />}
 

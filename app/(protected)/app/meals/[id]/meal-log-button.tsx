@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { logMeal } from "@/actions/meals";
 import { Check, Loader2, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
+import { GradientButton } from "@/components/react-bits/gradient-button";
 
 interface MealLogButtonProps {
   mealId: string;
@@ -30,21 +30,21 @@ export function MealLogButton({ mealId, isLogged }: MealLogButtonProps) {
 
   if (logged) {
     return (
-      <Button disabled className="w-full" variant="secondary">
+      <GradientButton disabled className="w-full" gradient="primary" style={{ opacity: 0.6 }}>
         <Check className="mr-2 h-4 w-4 text-green-500" />
         Logged Today
-      </Button>
+      </GradientButton>
     );
   }
 
   return (
-    <Button onClick={handleLog} disabled={loading} className="w-full">
+    <GradientButton onClick={handleLog} disabled={loading} className="w-full" gradient="purple">
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <UtensilsCrossed className="mr-2 h-4 w-4" />
       )}
       Log This Meal
-    </Button>
+    </GradientButton>
   );
 }

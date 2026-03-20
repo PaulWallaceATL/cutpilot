@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { Meal } from "@/types/database";
+import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
 
 interface MealCardProps {
   meal: Meal;
@@ -8,7 +8,7 @@ interface MealCardProps {
 
 export function MealCard({ meal }: MealCardProps) {
   return (
-    <Card>
+    <AnimatedCard hoverEffect="glow">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{meal.name}</CardTitle>
@@ -45,6 +45,6 @@ export function MealCard({ meal }: MealCardProps) {
           </p>
         )}
       </CardContent>
-    </Card>
+    </AnimatedCard>
   );
 }

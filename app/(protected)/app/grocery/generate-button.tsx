@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { generateGroceryList } from "@/actions/grocery";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { GradientButton } from "@/components/react-bits/gradient-button";
 
 export function GenerateButton() {
   const [loading, setLoading] = useState(false);
@@ -24,13 +24,13 @@ export function GenerateButton() {
   }
 
   return (
-    <Button onClick={handleGenerate} disabled={loading} size="sm">
+    <GradientButton onClick={handleGenerate} disabled={loading} size="sm" gradient="blue">
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <ShoppingCart className="mr-2 h-4 w-4" />
       )}
       Generate List
-    </Button>
+    </GradientButton>
   );
 }
