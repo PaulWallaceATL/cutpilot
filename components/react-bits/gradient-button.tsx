@@ -2,10 +2,11 @@
 
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
+import { forwardRef, type ReactNode } from "react";
 
 interface GradientButtonProps extends ButtonProps {
   gradient?: "primary" | "rainbow" | "purple" | "blue";
+  children?: ReactNode;
 }
 
 export const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
