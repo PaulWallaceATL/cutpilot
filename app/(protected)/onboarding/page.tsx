@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -15,28 +15,69 @@ import { toast } from "sonner";
 import type { OnboardingFormData } from "@/lib/schemas/onboarding";
 
 const TOTAL_STEPS = 4;
+const STORAGE_KEY = "cutpilot_onboarding_data";
+
+const defaultData: OnboardingFormData = {
+  fitness_goal: "lose_fat",
+  experience_level: "beginner",
+  age: 25,
+  sex: "male",
+  height_cm: 175,
+  weight_kg: 80,
+  target_weight_kg: 75,
+  activity_level: "moderate",
+  workout_days_per_week: 4,
+  workout_duration_minutes: 60,
+  available_equipment: [],
+  dietary_restrictions: [],
+  diet_type: "flexible",
+  meals_per_day: 3,
+  injuries: [],
+};
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [generating, setGenerating] = useState(false);
-  const [data, setData] = useState<OnboardingFormData>({
-    fitness_goal: "lose_fat",
-    experience_level: "beginner",
-    age: 25,
-    sex: "male",
-    height_cm: 175,
-    weight_kg: 80,
-    target_weight_kg: 75,
-    activity_level: "moderate",
-    workout_days_per_week: 4,
-    workout_duration_minutes: 60,
-    available_equipment: [],
-    dietary_restrictions: [],
-    diet_type: "flexible",
-    meals_per_day: 3,
-    injuries: [],
+  const [step, setStep] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(`${STORAGE_KEY}_step`);
+      return saved ? parseInt(saved, 10) : 0;
+    }
+    return 0;
   });
+  const [generating, setGenerating] = useState(false);
+  const [data, setData] = useState<OnboardingFormData>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          return { ...defaultData, ...JSON.parse(saved) };
+        } catch {
+          return defaultData;
+        }
+      }
+    }
+    return defaultData;
+  });
+
+  // Persist form data to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(`${STORAGE_KEY}_step`, step.toString());
+    }
+  }, [data, step]);
+
+  // Clear storage on successful completion
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Don't clear if we're generating (might be in progress)
+      if (!generating) {
+        // Keep data for a bit in case of accidental refresh
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [generating]);
 
   function updateField(field: string, value: unknown) {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -44,14 +85,39 @@ export default function OnboardingPage() {
 
   async function handleSubmit() {
     setGenerating(true);
-    const result = await completeOnboarding(data);
-    if (result?.error) {
-      toast.error(result.error);
+    
+    // Client-side timeout (2 minutes)
+    const timeoutId = setTimeout(() => {
       setGenerating(false);
-    } else if (result?.success) {
-      toast.success("Profile setup complete! Generating your plan...");
-      router.push("/app/today");
-      router.refresh();
+      toast.error("Plan generation is taking longer than expected. Please try again or check your OpenAI API key.");
+    }, 120000); // 2 minutes
+
+    try {
+      const result = await completeOnboarding(data);
+      clearTimeout(timeoutId);
+      
+      if (result?.error) {
+        toast.error(result.error);
+        setGenerating(false);
+      } else if (result?.success) {
+        // Clear stored data on success
+        if (typeof window !== "undefined") {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(`${STORAGE_KEY}_step`);
+        }
+        toast.success("Profile setup complete! Redirecting...");
+        router.push("/app/today");
+        router.refresh();
+      }
+    } catch (error) {
+      clearTimeout(timeoutId);
+      setGenerating(false);
+      console.error("Onboarding error:", error);
+      toast.error(
+        error instanceof Error 
+          ? `Failed to complete setup: ${error.message}`
+          : "Failed to complete setup. Please try again."
+      );
     }
   }
 

@@ -38,16 +38,29 @@ Injuries: ${data.injuries.length > 0 ? data.injuries.map((i) => `${i.body_part} 
 
 Generate a complete workout plan with ${data.workout_days_per_week} training days and a 7-day meal plan with ${data.meals_per_day} meals per day.`;
 
-  const response = await client.responses.create({
-    model: getTextModel(),
-    input: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
-    ],
-    text: {
-      format: zodTextFormat(initialPlanSchema, "initial_plan"),
-    },
-  });
+  try {
+    const response = await client.responses.create({
+      model: getTextModel(),
+      input: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      text: {
+        format: zodTextFormat(initialPlanSchema, "initial_plan"),
+      },
+    });
 
-  return JSON.parse(response.output_text) as AIInitialPlan;
+    return JSON.parse(response.output_text) as AIInitialPlan;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message.includes("timeout") || error.message.includes("TIMEOUT")) {
+        throw new Error("Plan generation timed out. Please check your OpenAI API key and try again.");
+      }
+      if (error.message.includes("API key") || error.message.includes("authentication")) {
+        throw new Error("Invalid OpenAI API key. Please check your environment variables.");
+      }
+      throw new Error(`Failed to generate plan: ${error.message}`);
+    }
+    throw error;
+  }
 }
