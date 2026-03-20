@@ -20,6 +20,9 @@ export function OnboardingCheck() {
         return;
       }
 
+      // Add a small delay to avoid race conditions after redirect
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       const supabase = createClient();
       const {
         data: { user },
@@ -30,14 +33,33 @@ export function OnboardingCheck() {
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("onboarding_completed")
-        .eq("id", user.id)
-        .single();
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("onboarding_completed")
+          .eq("id", user.id)
+          .single();
 
-      // If profile doesn't exist or onboarding not completed, show modal
-      if (!profile || !profile.onboarding_completed) {
+        // Handle errors gracefully - don't block the app
+        if (profileError) {
+          console.error("Error checking onboarding status:", profileError);
+          // If it's a 406, 404, or table not found error, assume onboarding is complete to avoid blocking
+          if (
+            profileError.code === "PGRST116" || 
+            profileError.status === 406 ||
+            profileError.status === 404 ||
+            profileError.message?.includes("Could not find the table")
+          ) {
+            setOnboardingCompleted(true);
+            return;
+          }
+          // For other errors, assume complete to avoid blocking navigation
+          setOnboardingCompleted(true);
+          return;
+        }
+
+        // If profile doesn't exist or onboarding not completed, show modal
+        if (!profile || !profile.onboarding_completed) {
         setOnboardingCompleted(false);
         
         // Calculate progress based on what's filled in
@@ -61,9 +83,14 @@ export function OnboardingCheck() {
         // Show immediately on profile page
         const delay = pathname?.includes("/profile") ? 300 : 1000;
         setTimeout(() => setShowModal(true), delay);
-      } else {
+        } else {
+          setOnboardingCompleted(true);
+          setShowModal(false);
+        }
+      } catch (error) {
+        // Catch any unexpected errors and don't block the app
+        console.error("Unexpected error in onboarding check:", error);
         setOnboardingCompleted(true);
-        setShowModal(false);
       }
     }
 

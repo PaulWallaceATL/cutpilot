@@ -111,10 +111,12 @@ export default function OnboardingPage() {
           localStorage.removeItem(`${STORAGE_KEY}_step`);
         }
         toast.success("Profile setup complete! Redirecting...");
-        // Small delay to ensure toast is visible, then hard redirect
+        // Clear generating state first, then redirect
+        setGenerating(false);
+        // Use a small delay to ensure state updates, then hard redirect
         setTimeout(() => {
-          window.location.href = "/app/today";
-        }, 500);
+          window.location.replace("/app/today");
+        }, 300);
         return;
       }
       
