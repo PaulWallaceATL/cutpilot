@@ -82,7 +82,7 @@ export default function LandingPage() {
         <section className="relative isolate overflow-hidden py-28 md:py-40">
           <HeroBackground />
 
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-background/30 via-background/70 to-background" />
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-background/40 to-background" />
 
           <div className="mx-auto max-w-4xl px-6 text-center">
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/60 px-4 py-1.5 text-sm text-muted-foreground backdrop-blur-sm">

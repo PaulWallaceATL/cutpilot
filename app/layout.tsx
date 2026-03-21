@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { AppPreloader } from "@/components/shared/app-preloader";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} min-h-screen bg-background font-sans antialiased`}
       >
-        {children}
+        <AppPreloader>
+          {children}
+        </AppPreloader>
         <Toaster />
       </body>
     </html>
