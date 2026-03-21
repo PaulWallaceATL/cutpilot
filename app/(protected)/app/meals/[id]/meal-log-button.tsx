@@ -4,7 +4,7 @@ import { useState } from "react";
 import { logMeal } from "@/actions/meals";
 import { Check, Loader2, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
-import { GradientButton } from "@/components/react-bits/gradient-button";
+import { Button } from "@/components/ui/button";
 
 interface MealLogButtonProps {
   mealId: string;
@@ -30,21 +30,21 @@ export function MealLogButton({ mealId, isLogged }: MealLogButtonProps) {
 
   if (logged) {
     return (
-      <GradientButton disabled className="w-full" gradient="primary" style={{ opacity: 0.6 }}>
+      <Button disabled className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 opacity-60">
         <Check className="mr-2 h-4 w-4 text-green-500" />
         Logged Today
-      </GradientButton>
+      </Button>
     );
   }
 
   return (
-    <GradientButton onClick={handleLog} disabled={loading} className="w-full" gradient="purple">
+    <Button onClick={handleLog} disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg transition-all">
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <UtensilsCrossed className="mr-2 h-4 w-4" />
       )}
       Log This Meal
-    </GradientButton>
+    </Button>
   );
 }

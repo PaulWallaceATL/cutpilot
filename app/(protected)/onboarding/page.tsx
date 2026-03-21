@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { StepGoals } from "@/components/onboarding/step-goals";
 import { StepBody } from "@/components/onboarding/step-body";
 import { StepPreferences } from "@/components/onboarding/step-preferences";
@@ -16,6 +15,8 @@ import type { OnboardingFormData } from "@/lib/schemas/onboarding";
 
 const TOTAL_STEPS = 4;
 const STORAGE_KEY = "cutpilot_onboarding_data";
+
+const STEP_TITLES = ["Your Goals", "Body Metrics", "Preferences", "Injuries"];
 
 const defaultData: OnboardingFormData = {
   fitness_goal: "lose_fat",
@@ -59,7 +60,6 @@ export default function OnboardingPage() {
     return defaultData;
   });
 
-  // Persist form data to localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -67,10 +67,8 @@ export default function OnboardingPage() {
     }
   }, [data, step]);
 
-  // Clear storage on successful completion
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // Don't clear if we're generating (might be in progress)
       if (!generating) {
         // Keep data for a bit in case of accidental refresh
       }
@@ -86,17 +84,16 @@ export default function OnboardingPage() {
   async function handleSubmit() {
     setGenerating(true);
     
-    // Client-side timeout (2 minutes)
     const timeoutId = setTimeout(() => {
       setGenerating(false);
       toast.error("Plan generation is taking longer than expected. Please try again or check your OpenAI API key.");
-    }, 120000); // 2 minutes
+    }, 120000);
 
     try {
       const result = await completeOnboarding(data);
       clearTimeout(timeoutId);
       
-      console.log("Onboarding result:", result); // Debug log
+      console.log("Onboarding result:", result);
       
       if (result?.error) {
         toast.error(result.error);
@@ -105,22 +102,18 @@ export default function OnboardingPage() {
       }
       
       if (result?.success) {
-        // Clear stored data on success
         if (typeof window !== "undefined") {
           localStorage.removeItem(STORAGE_KEY);
           localStorage.removeItem(`${STORAGE_KEY}_step`);
         }
         toast.success("Profile setup complete! Redirecting...");
-        // Clear generating state first, then redirect
         setGenerating(false);
-        // Use a small delay to ensure state updates, then hard redirect
         setTimeout(() => {
           window.location.replace("/app/today");
         }, 300);
         return;
       }
       
-      // No result or unexpected format
       console.error("Unexpected result format:", result);
       setGenerating(false);
       toast.error("Unexpected response. Please check the console and try again.");
@@ -144,58 +137,84 @@ export default function OnboardingPage() {
     );
   }
 
+  const progress = ((step + 1) / TOTAL_STEPS) * 100;
+
   return (
     <div className="flex min-h-screen flex-col p-4">
       <div className="mx-auto w-full max-w-lg">
         <div className="flex items-center justify-center gap-2 py-6">
-          <Zap className="h-5 w-5 text-primary" />
-          <span className="font-bold">CutPilot Setup</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm">
+            <Zap className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <span className="text-lg font-bold font-heading">CutPilot Setup</span>
         </div>
 
-        <Progress value={((step + 1) / TOTAL_STEPS) * 100} className="mb-8" />
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-medium text-muted-foreground">
+            Step {step + 1} of {TOTAL_STEPS}
+          </span>
+          <span className="text-sm font-semibold font-heading text-foreground">
+            {STEP_TITLES[step]}
+          </span>
+        </div>
+        <div className="relative mb-8 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
 
-        {step === 0 && (
-          <StepGoals
-            data={data}
-            onChange={(field, value) => updateField(field, value)}
-          />
-        )}
-        {step === 1 && (
-          <StepBody
-            data={data}
-            onChange={(field, value) => updateField(field, value)}
-          />
-        )}
-        {step === 2 && (
-          <StepPreferences
-            data={data}
-            onChange={(field, value) => updateField(field, value)}
-          />
-        )}
-        {step === 3 && (
-          <StepInjuries
-            injuries={data.injuries}
-            onChange={(injuries) => updateField("injuries", injuries)}
-          />
-        )}
+        <div className="transition-opacity duration-300 ease-in-out">
+          {step === 0 && (
+            <StepGoals
+              data={data}
+              onChange={(field, value) => updateField(field, value)}
+            />
+          )}
+          {step === 1 && (
+            <StepBody
+              data={data}
+              onChange={(field, value) => updateField(field, value)}
+            />
+          )}
+          {step === 2 && (
+            <StepPreferences
+              data={data}
+              onChange={(field, value) => updateField(field, value)}
+            />
+          )}
+          {step === 3 && (
+            <StepInjuries
+              injuries={data.injuries}
+              onChange={(injuries) => updateField("injuries", injuries)}
+            />
+          )}
+        </div>
 
         <div className="mt-8 flex items-center justify-between">
           <Button
             variant="outline"
             onClick={() => setStep((s) => s - 1)}
             disabled={step === 0}
+            className="transition-all duration-200"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
 
           {step < TOTAL_STEPS - 1 ? (
-            <Button onClick={() => setStep((s) => s + 1)}>
+            <Button
+              onClick={() => setStep((s) => s + 1)}
+              className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
+            >
               Next
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit}>
+            <Button
+              onClick={handleSubmit}
+              className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
+            >
               Generate My Plan
               <Zap className="ml-2 h-4 w-4" />
             </Button>

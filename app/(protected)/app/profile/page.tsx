@@ -1,104 +1,320 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+"use client";
+
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useUser } from "@/hooks/use-user";
+import { useSupabase } from "@/hooks/use-supabase";
+import { updateProfile, updatePreferences } from "@/actions/profile";
+import {
+  FITNESS_GOAL_LABELS,
+  EXPERIENCE_LABELS,
+  ACTIVITY_LABELS,
+} from "@/lib/schemas/onboarding";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MacroSummary } from "@/components/shared/macro-bar";
-import { Separator } from "@/components/ui/separator";
-import { User, Target, Dumbbell, UtensilsCrossed, Edit } from "lucide-react";
-import { FITNESS_GOAL_LABELS, EXPERIENCE_LABELS } from "@/lib/schemas/onboarding";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  User,
+  Target,
+  Pencil,
+  Loader2,
+  Flame,
+  Beef,
+  Wheat,
+  Droplets,
+  AlertTriangle,
+} from "lucide-react";
 
-export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+/* -------------------------------------------------------------------------- */
+/*  Types                                                                     */
+/* -------------------------------------------------------------------------- */
 
-  if (!user) return null;
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  onboarding_completed: boolean;
+}
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
+interface Preferences {
+  age: number | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  target_weight_kg: number | null;
+  fitness_goal: string | null;
+  experience_level: string | null;
+  activity_level: string | null;
+  diet_type: string | null;
+  workout_days_per_week: number | null;
+  dietary_restrictions: string[] | null;
+  calorie_target: number | null;
+  protein_target_g: number | null;
+  carb_target_g: number | null;
+  fat_target_g: number | null;
+}
 
-  const { data: prefs } = await supabase
-    .from("user_preferences")
-    .select("*")
-    .eq("user_id", user.id)
-    .single();
+interface Injury {
+  id: string;
+  body_part: string;
+  severity: string;
+}
 
-  const { data: injuries } = await supabase
-    .from("injuries")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("is_active", true);
+/* -------------------------------------------------------------------------- */
+/*  EditableField                                                             */
+/* -------------------------------------------------------------------------- */
 
-  const onboardingIncomplete = !profile?.onboarding_completed;
+function EditableField({
+  label,
+  value,
+  suffix,
+  onSave,
+}: {
+  label: string;
+  value: string | number | null | undefined;
+  suffix?: string;
+  onSave: (value: string) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startEditing = useCallback(() => {
+    setDraft(value?.toString() ?? "");
+    setEditing(true);
+  }, [value]);
+
+  useEffect(() => {
+    if (editing) inputRef.current?.focus();
+  }, [editing]);
+
+  const save = async () => {
+    if (draft === (value?.toString() ?? "")) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave(draft);
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
+  };
+
+  const cancel = () => {
+    setEditing(false);
+    setDraft("");
+  };
+
+  const display = value != null && value !== "" ? `${value}${suffix ? ` ${suffix}` : ""}` : "Not set";
+
+  if (editing) {
+    return (
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="text-muted-foreground shrink-0">{label}</span>
+        <div className="flex items-center gap-1.5">
+          <Input
+            ref={inputRef}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") save();
+              if (e.key === "Escape") cancel();
+            }}
+            onBlur={save}
+            disabled={saving}
+            className="h-7 w-28 text-right text-sm"
+          />
+          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="group/field flex items-center justify-between text-sm cursor-pointer rounded-md px-1 -mx-1 py-0.5 hover:bg-muted/50 transition-colors"
+      onClick={startEditing}
+    >
+      <span className="text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-1.5">
+        <span className={value == null || value === "" ? "text-muted-foreground italic" : ""}>
+          {display}
+        </span>
+        <Pencil className="h-3 w-3 text-muted-foreground/0 group-hover/field:text-muted-foreground transition-colors" />
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  EditableSelect                                                            */
+/* -------------------------------------------------------------------------- */
+
+function EditableSelect({
+  label,
+  value,
+  options,
+  onSave,
+}: {
+  label: string;
+  value: string | null | undefined;
+  options: Record<string, string>;
+  onSave: (value: string) => Promise<void>;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  const handleChange = async (newValue: unknown) => {
+    const v = newValue as string;
+    if (!v || v === value) return;
+    setSaving(true);
+    try {
+      await onSave(v);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-1.5">
+        <Select value={value ?? ""} onValueChange={handleChange}>
+          <SelectTrigger className="h-7 text-xs gap-1" size="sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {Object.entries(options).map(([k, v]) => (
+              <SelectItem key={k} value={k}>
+                {v}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Diet type labels                                                          */
+/* -------------------------------------------------------------------------- */
+
+const DIET_LABELS: Record<string, string> = {
+  flexible: "Flexible",
+  keto: "Keto",
+  paleo: "Paleo",
+  vegan: "Vegan",
+  vegetarian: "Vegetarian",
+  mediterranean: "Mediterranean",
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Profile Page                                                              */
+/* -------------------------------------------------------------------------- */
+
+export default function ProfilePage() {
+  const { user, loading: userLoading } = useUser();
+  const supabase = useSupabase();
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [prefs, setPrefs] = useState<Preferences | null>(null);
+  const [injuries, setInjuries] = useState<Injury[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = useCallback(async () => {
+    if (!user) return;
+
+    const [profileRes, prefsRes, injuriesRes] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", user.id).single(),
+      supabase.from("user_preferences").select("*").eq("user_id", user.id).single(),
+      supabase.from("injuries").select("*").eq("user_id", user.id).eq("is_active", true),
+    ]);
+
+    setProfile(profileRes.data);
+    setPrefs(prefsRes.data);
+    setInjuries(injuriesRes.data ?? []);
+    setLoading(false);
+  }, [user, supabase]);
+
+  useEffect(() => {
+    if (!userLoading && user) loadData();
+    if (!userLoading && !user) setLoading(false);
+  }, [userLoading, user, loadData]);
+
+  /* -- Save helpers -- */
+
+  const saveProfileField = async (field: string, value: string) => {
+    await updateProfile({ [field]: value });
+    setProfile((p) => (p ? { ...p, [field]: value } : p));
+  };
+
+  const savePrefsField = async (field: string, value: string) => {
+    const numericFields = [
+      "age",
+      "height_cm",
+      "weight_kg",
+      "target_weight_kg",
+      "workout_days_per_week",
+      "calorie_target",
+      "protein_target_g",
+      "carb_target_g",
+      "fat_target_g",
+    ];
+    const processed = numericFields.includes(field) ? Number(value) : value;
+    await updatePreferences({ [field]: processed });
+    setPrefs((p) => (p ? { ...p, [field]: processed } : p));
+  };
+
+  /* -- Loading state -- */
+
+  if (loading || userLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!user || !profile) return null;
+
+  /* -- Render -- */
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Profile</h1>
-        {onboardingIncomplete && (
-          <Link
-            href="/onboarding"
-            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-8 text-sm font-medium hover:bg-primary/80 transition-all gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Complete Setup
-          </Link>
-        )}
-      </div>
-
-      {onboardingIncomplete && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <div className="rounded-full bg-primary/10 p-2">
-                <Target className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold mb-1">Complete Your Profile</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Finish setting up your fitness goals, body stats, and preferences to get personalized workout and meal plans.
-                </p>
-                <Link
-                  href="/onboarding"
-                  className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-7 text-[0.8rem] font-medium hover:bg-primary/80 transition-all"
-                >
-                  Go to Setup
-                </Link>
-              </div>
+      {/* ---- Header Card ---- */}
+      <Card className="overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 px-4 py-6">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 ring-2 ring-primary/20">
+              <User className="h-7 w-7 text-primary" />
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!onboardingIncomplete && !prefs && (
-        <Card className="border-yellow-500/50 bg-yellow-500/5">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <div className="rounded-full bg-yellow-500/10 p-2">
-                <Target className="h-5 w-5 text-yellow-500" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold mb-1">Profile Setup Incomplete</h3>
-                <p className="text-sm text-muted-foreground mb-3">
-                  Your onboarding data wasn&apos;t found. Please complete the setup to see your full profile.
-                </p>
-                <Link
-                  href="/onboarding"
-                  className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-2.5 h-7 text-[0.8rem] font-medium hover:bg-primary/80 transition-all"
-                >
-                  Complete Setup
-                </Link>
-              </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="truncate text-xl font-bold">
+                {profile.full_name || "Your Profile"}
+              </h1>
+              <p className="truncate text-sm text-muted-foreground">
+                {profile.email || user.email}
+              </p>
+              {prefs?.fitness_goal && (
+                <Badge variant="secondary" className="mt-1.5">
+                  {FITNESS_GOAL_LABELS[prefs.fitness_goal] ?? prefs.fitness_goal}
+                </Badge>
+              )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
+      </Card>
 
+      {/* ---- Personal Info ---- */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -106,124 +322,44 @@ export default async function ProfilePage() {
             Personal Info
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Name</span>
-            <span>{profile?.full_name || user.user_metadata?.full_name || "Not set"}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Email</span>
-            <span>{profile?.email || user.email || "Not set"}</span>
-          </div>
-          {prefs ? (
+        <CardContent className="space-y-2">
+          <EditableField
+            label="Name"
+            value={profile.full_name}
+            onSave={(v) => saveProfileField("full_name", v)}
+          />
+          {prefs && (
             <>
-              {prefs.age && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Age</span>
-                  <span>{prefs.age}</span>
-                </div>
-              )}
-              {prefs.height_cm && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Height</span>
-                  <span>{prefs.height_cm} cm</span>
-                </div>
-              )}
-              {prefs.weight_kg && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Weight</span>
-                  <span>{prefs.weight_kg} kg</span>
-                </div>
-              )}
-              {prefs.target_weight_kg && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Target Weight</span>
-                  <span>{prefs.target_weight_kg} kg</span>
-                </div>
-              )}
+              <EditableField
+                label="Age"
+                value={prefs.age}
+                onSave={(v) => savePrefsField("age", v)}
+              />
+              <EditableField
+                label="Height"
+                value={prefs.height_cm}
+                suffix="cm"
+                onSave={(v) => savePrefsField("height_cm", v)}
+              />
+              <EditableField
+                label="Weight"
+                value={prefs.weight_kg}
+                suffix="kg"
+                onSave={(v) => savePrefsField("weight_kg", v)}
+              />
+              <EditableField
+                label="Target Weight"
+                value={prefs.target_weight_kg}
+                suffix="kg"
+                onSave={(v) => savePrefsField("target_weight_kg", v)}
+              />
             </>
-          ) : (
-            <div className="text-sm text-muted-foreground py-2">
-              Complete onboarding to see your body stats
-            </div>
           )}
         </CardContent>
       </Card>
 
-      {prefs ? (
-        <>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Target className="h-4 w-4" />
-                Goals & Preferences
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {prefs.fitness_goal && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Goal</span>
-                  <Badge variant="secondary">
-                    {FITNESS_GOAL_LABELS[prefs.fitness_goal] || prefs.fitness_goal}
-                  </Badge>
-                </div>
-              )}
-              {prefs.experience_level && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Experience</span>
-                  <span>{EXPERIENCE_LABELS[prefs.experience_level] || prefs.experience_level}</span>
-                </div>
-              )}
-              {prefs.diet_type && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Diet</span>
-                  <span className="capitalize">{prefs.diet_type}</span>
-                </div>
-              )}
-              {prefs.activity_level && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Activity Level</span>
-                  <span className="capitalize">{prefs.activity_level}</span>
-                </div>
-              )}
-              {prefs.workout_days_per_week && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Workout Days/Week</span>
-                  <span>{prefs.workout_days_per_week}</span>
-                </div>
-              )}
-              {prefs.dietary_restrictions && prefs.dietary_restrictions.length > 0 && (
-                <div className="flex justify-between text-sm items-start">
-                  <span className="text-muted-foreground">Restrictions</span>
-                  <div className="flex flex-wrap gap-1 justify-end">
-                    {prefs.dietary_restrictions.map((r: string) => (
-                      <Badge key={r} variant="outline" className="text-xs">
-                        {r}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {(prefs.calorie_target || prefs.protein_target_g || prefs.carb_target_g || prefs.fat_target_g) && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Daily Macro Targets</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <MacroSummary
-                  calories={{ current: 0, target: prefs.calorie_target || 2000 }}
-                  protein={{ current: 0, target: prefs.protein_target_g || 150 }}
-                  carbs={{ current: 0, target: prefs.carb_target_g || 200 }}
-                  fat={{ current: 0, target: prefs.fat_target_g || 70 }}
-                />
-              </CardContent>
-            </Card>
-          )}
-        </>
-      ) : (
+      {/* ---- Goals & Preferences ---- */}
+      {prefs && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -231,49 +367,126 @@ export default async function ProfilePage() {
               Goals & Preferences
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground py-4 text-center">
-              Complete onboarding to see your goals and preferences
-            </p>
+          <CardContent className="space-y-3">
+            <EditableSelect
+              label="Fitness Goal"
+              value={prefs.fitness_goal}
+              options={FITNESS_GOAL_LABELS}
+              onSave={(v) => savePrefsField("fitness_goal", v)}
+            />
+            <EditableSelect
+              label="Experience"
+              value={prefs.experience_level}
+              options={EXPERIENCE_LABELS}
+              onSave={(v) => savePrefsField("experience_level", v)}
+            />
+            <EditableSelect
+              label="Activity Level"
+              value={prefs.activity_level}
+              options={ACTIVITY_LABELS}
+              onSave={(v) => savePrefsField("activity_level", v)}
+            />
+            <EditableSelect
+              label="Diet Type"
+              value={prefs.diet_type}
+              options={DIET_LABELS}
+              onSave={(v) => savePrefsField("diet_type", v)}
+            />
+            <EditableField
+              label="Workout Days/Week"
+              value={prefs.workout_days_per_week}
+              onSave={(v) => savePrefsField("workout_days_per_week", v)}
+            />
+            {prefs.dietary_restrictions && prefs.dietary_restrictions.length > 0 && (
+              <div className="flex items-start justify-between text-sm pt-1">
+                <span className="text-muted-foreground">Restrictions</span>
+                <div className="flex flex-wrap gap-1 justify-end">
+                  {prefs.dietary_restrictions.map((r) => (
+                    <Badge key={r} variant="outline" className="text-xs">
+                      {r}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
 
-      {injuries && injuries.length > 0 ? (
+      {/* ---- Macro Targets ---- */}
+      {prefs && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Active Injuries</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Flame className="h-4 w-4" />
+              Macro Targets
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {injuries.map((injury) => (
-              <div
-                key={injury.id}
-                className="flex items-center justify-between text-sm"
-              >
-                <span>{injury.body_part}</span>
-                <Badge
-                  variant={
-                    injury.severity === "severe"
-                      ? "destructive"
-                      : "secondary"
-                  }
+            <EditableField
+              label="Calories"
+              value={prefs.calorie_target}
+              suffix="kcal"
+              onSave={(v) => savePrefsField("calorie_target", v)}
+            />
+            <div className="flex items-center gap-1.5 text-muted-foreground text-xs pt-1 pb-0.5">
+              <Beef className="h-3 w-3" />
+              <span>Macronutrients</span>
+            </div>
+            <EditableField
+              label="Protein"
+              value={prefs.protein_target_g}
+              suffix="g"
+              onSave={(v) => savePrefsField("protein_target_g", v)}
+            />
+            <EditableField
+              label="Carbs"
+              value={prefs.carb_target_g}
+              suffix="g"
+              onSave={(v) => savePrefsField("carb_target_g", v)}
+            />
+            <EditableField
+              label="Fat"
+              value={prefs.fat_target_g}
+              suffix="g"
+              onSave={(v) => savePrefsField("fat_target_g", v)}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ---- Active Injuries ---- */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <AlertTriangle className="h-4 w-4" />
+            Active Injuries
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {injuries.length > 0 ? (
+            <div className="space-y-2">
+              {injuries.map((injury) => (
+                <div
+                  key={injury.id}
+                  className="flex items-center justify-between text-sm"
                 >
-                  {injury.severity}
-                </Badge>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      ) : prefs ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Active Injuries</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground py-2">No active injuries recorded</p>
-          </CardContent>
-        </Card>
-      ) : null}
+                  <span>{injury.body_part}</span>
+                  <Badge
+                    variant={injury.severity === "severe" ? "destructive" : "secondary"}
+                  >
+                    {injury.severity}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground py-2">
+              No active injuries recorded
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { ExerciseCard } from "@/components/workout/exercise-card";
 import { WorkoutChat } from "@/components/workout/workout-chat";
 import { WorkoutActions } from "./workout-actions";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { ArrowLeft } from "lucide-react";
 import type { WorkoutExercise } from "@/types/database";
 
 export default async function WorkoutDetailPage({
@@ -66,14 +67,27 @@ export default async function WorkoutDetailPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">{workout.name}</h1>
-          {workout.focus && <Badge variant="secondary">{workout.focus}</Badge>}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="relative space-y-3">
+          <Link
+            href="/app/workouts"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Workouts
+          </Link>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-heading">{workout.name}</h1>
+            {workout.focus && (
+              <Badge variant="secondary" className="font-medium">{workout.focus}</Badge>
+            )}
+          </div>
+          {workout.notes && (
+            <p className="text-muted-foreground">{workout.notes}</p>
+          )}
         </div>
-        {workout.notes && (
-          <p className="mt-1 text-muted-foreground">{workout.notes}</p>
-        )}
       </div>
 
       <WorkoutActions
@@ -97,10 +111,10 @@ export default async function WorkoutDetailPage({
         })}
       </div>
 
-      <Separator />
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div>
-        <h2 className="text-lg font-semibold mb-3">AI Assistant</h2>
+        <h2 className="text-lg font-semibold font-heading mb-3">AI Assistant</h2>
         <WorkoutChat workoutDayId={id} initialMessages={chatMessages} />
       </div>
     </div>

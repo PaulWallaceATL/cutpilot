@@ -5,16 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { regenerateWorkout, regenerateMeal } from "@/actions/plan";
 import { createClient } from "@/lib/supabase/client";
 import { Dumbbell, UtensilsCrossed, RefreshCw, Loader2, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
-import { GradientButton } from "@/components/react-bits/gradient-button";
-import { StaggeredText } from "@/components/react-bits/staggered-text";
-import { AnimatedList } from "@/components/react-bits/animated-list";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface WorkoutPlan {
   id: string;
@@ -51,7 +48,6 @@ export default function PlanPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Load workout plan
       const { data: wp } = await supabase
         .from("workout_plans")
         .select("*")
@@ -69,7 +65,6 @@ export default function PlanPage() {
         setWorkoutDays(days || []);
       }
 
-      // Load meal plan
       const { data: mp } = await supabase
         .from("meal_plans")
         .select("*")
@@ -93,7 +88,6 @@ export default function PlanPage() {
     if (result?.success) {
       toast.success("New workout plan generated!");
       setWorkoutFeedback("");
-      // Reload plans
       router.refresh();
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -126,7 +120,6 @@ export default function PlanPage() {
     if (result?.success) {
       toast.success("New meal plan generated!");
       setMealFeedback("");
-      // Reload plans
       router.refresh();
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -149,8 +142,15 @@ export default function PlanPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold">My Plan</h1>
+      <div className="space-y-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+          <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+          <div className="relative">
+            <h1 className="text-3xl font-bold tracking-tight font-heading">My Plan</h1>
+            <p className="mt-1 text-muted-foreground">View and regenerate your plans</p>
+          </div>
+        </div>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
@@ -159,25 +159,27 @@ export default function PlanPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">
-          <StaggeredText text="My Plan" as="span" />
-        </h1>
-        <p className="text-muted-foreground">
-          View and regenerate your workout or meal plan. Optionally provide feedback so the
-          AI can make adjustments.
-        </p>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="relative">
+          <h1 className="text-3xl font-bold tracking-tight font-heading">My Plan</h1>
+          <p className="mt-1 text-muted-foreground">
+            View and regenerate your workout or meal plan. Optionally provide feedback so the
+            AI can make adjustments.
+          </p>
+        </div>
       </div>
 
-      <AnimatedCard hoverEffect="glow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Dumbbell className="h-5 w-5 transition-transform hover:scale-110" />
+      <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+        <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-border/50">
+          <CardTitle className="flex items-center gap-2 text-base font-heading">
+            <Dumbbell className="h-5 w-5 text-primary" />
             Workout Plan
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-5">
           {workoutPlan ? (
             <>
               <div className="space-y-2">
@@ -196,17 +198,17 @@ export default function PlanPage() {
                 </div>
                 {workoutDays.length > 0 && (
                   <div className="space-y-2 mt-4">
-                    <Label className="text-xs">Workout Days</Label>
-                    <AnimatedList className="space-y-2" animation="slide" staggerDelay={50}>
+                    <Label className="text-xs text-muted-foreground">Workout Days</Label>
+                    <div className="space-y-2">
                       {workoutDays.map((day) => (
                         <Link
                           key={day.id}
                           href={`/app/workouts/${day.id}`}
-                          className="flex items-center justify-between p-2 rounded-lg border border-border hover:bg-muted transition-all hover:scale-[1.02]"
+                          className="group flex items-center justify-between p-3 rounded-xl border border-border/50 hover:bg-muted/50 hover:border-primary/20 transition-all duration-200"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10 transition-transform hover:scale-110">
-                              <span className="text-xs font-bold text-primary">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/70 shadow-sm">
+                              <span className="text-xs font-bold text-primary-foreground">
                                 D{day.day_number}
                               </span>
                             </div>
@@ -219,14 +221,14 @@ export default function PlanPage() {
                               )}
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
                         </Link>
                       ))}
-                    </AnimatedList>
+                    </div>
                   </div>
                 )}
               </div>
-              <Separator />
+              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </>
           ) : (
             <p className="text-sm text-muted-foreground py-2">
@@ -239,13 +241,13 @@ export default function PlanPage() {
               value={workoutFeedback}
               onChange={(e) => setWorkoutFeedback(e.target.value)}
               placeholder="e.g. I want more leg exercises, less shoulder work, shorter sessions..."
+              className="border-border/50"
             />
           </div>
-          <GradientButton
+          <Button
             onClick={handleRegenerateWorkout}
             disabled={loadingWorkout}
-            className="w-full"
-            gradient="rainbow"
+            className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
           >
             {loadingWorkout ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -253,20 +255,20 @@ export default function PlanPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
             )}
             {loadingWorkout ? "Generating..." : "Regenerate Workout Plan"}
-          </GradientButton>
+          </Button>
         </CardContent>
-      </AnimatedCard>
+      </Card>
 
-      <Separator />
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
-      <AnimatedCard hoverEffect="glow">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <UtensilsCrossed className="h-5 w-5 transition-transform hover:scale-110" />
+      <Card className="overflow-hidden border-border/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+        <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-b border-border/50">
+          <CardTitle className="flex items-center gap-2 text-base font-heading">
+            <UtensilsCrossed className="h-5 w-5 text-primary" />
             Meal Plan
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 p-5">
           {mealPlan ? (
             <>
               <div className="space-y-2">
@@ -278,27 +280,27 @@ export default function PlanPage() {
                     </p>
                   )}
                   {mealPlan.daily_calories && (
-                    <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Calories:</span>
-                        <span className="ml-2 font-medium">{mealPlan.daily_calories}</span>
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                        <span className="text-xs text-muted-foreground block">Calories</span>
+                        <span className="text-sm font-semibold">{mealPlan.daily_calories}</span>
                       </div>
                       {mealPlan.protein_g && (
-                        <div>
-                          <span className="text-muted-foreground">Protein:</span>
-                          <span className="ml-2 font-medium">{mealPlan.protein_g}g</span>
+                        <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                          <span className="text-xs text-muted-foreground block">Protein</span>
+                          <span className="text-sm font-semibold">{mealPlan.protein_g}g</span>
                         </div>
                       )}
                       {mealPlan.carbs_g && (
-                        <div>
-                          <span className="text-muted-foreground">Carbs:</span>
-                          <span className="ml-2 font-medium">{mealPlan.carbs_g}g</span>
+                        <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                          <span className="text-xs text-muted-foreground block">Carbs</span>
+                          <span className="text-sm font-semibold">{mealPlan.carbs_g}g</span>
                         </div>
                       )}
                       {mealPlan.fat_g && (
-                        <div>
-                          <span className="text-muted-foreground">Fat:</span>
-                          <span className="ml-2 font-medium">{mealPlan.fat_g}g</span>
+                        <div className="rounded-lg bg-muted/50 p-2.5 text-center">
+                          <span className="text-xs text-muted-foreground block">Fat</span>
+                          <span className="text-sm font-semibold">{mealPlan.fat_g}g</span>
                         </div>
                       )}
                     </div>
@@ -306,12 +308,12 @@ export default function PlanPage() {
                 </div>
                 <Link
                   href="/app/meals"
-                  className="inline-flex items-center text-sm text-primary hover:underline mt-2"
+                  className="group inline-flex items-center text-sm text-primary hover:underline mt-2"
                 >
-                  View full meal plan <ChevronRight className="ml-1 h-4 w-4" />
+                  View full meal plan <ChevronRight className="ml-1 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
               </div>
-              <Separator />
+              <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </>
           ) : (
             <p className="text-sm text-muted-foreground py-2">
@@ -324,13 +326,13 @@ export default function PlanPage() {
               value={mealFeedback}
               onChange={(e) => setMealFeedback(e.target.value)}
               placeholder="e.g. More variety, simpler recipes, more protein, less prep time..."
+              className="border-border/50"
             />
           </div>
-          <GradientButton
+          <Button
             onClick={handleRegenerateMeal}
             disabled={loadingMeal}
-            className="w-full"
-            gradient="purple"
+            className="w-full bg-gradient-to-r from-primary to-primary/80 text-primary-foreground border-0 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300"
           >
             {loadingMeal ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -338,9 +340,9 @@ export default function PlanPage() {
               <RefreshCw className="mr-2 h-4 w-4" />
             )}
             {loadingMeal ? "Generating..." : "Regenerate Meal Plan"}
-          </GradientButton>
+          </Button>
         </CardContent>
-      </AnimatedCard>
+      </Card>
     </div>
   );
 }

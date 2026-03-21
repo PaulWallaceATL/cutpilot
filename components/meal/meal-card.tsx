@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { Meal } from "@/types/database";
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface MealCardProps {
   meal: Meal;
@@ -8,7 +8,7 @@ interface MealCardProps {
 
 export function MealCard({ meal }: MealCardProps) {
   return (
-    <AnimatedCard hoverEffect="glow">
+    <Card className="transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{meal.name}</CardTitle>
@@ -45,6 +45,6 @@ export function MealCard({ meal }: MealCardProps) {
           </p>
         )}
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

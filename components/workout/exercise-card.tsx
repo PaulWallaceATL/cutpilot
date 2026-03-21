@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { SetLogger } from "./set-logger";
 import type { WorkoutExercise } from "@/types/database";
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ExerciseCardProps {
   exercise: WorkoutExercise;
@@ -22,7 +22,7 @@ export function ExerciseCard({
   existingSets,
 }: ExerciseCardProps) {
   return (
-    <AnimatedCard hoverEffect="lift">
+    <Card className="transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{exercise.name}</CardTitle>
@@ -51,6 +51,6 @@ export function ExerciseCard({
           existingSets={existingSets}
         />
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

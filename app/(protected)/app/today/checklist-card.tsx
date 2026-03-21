@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Progress } from "@/components/ui/progress";
 import { toggleChecklistItem } from "@/actions/checklist";
 import { CheckCircle2 } from "lucide-react";
-import { AnimatedCard, CardContent, CardHeader, CardTitle } from "@/components/react-bits/animated-card";
-import { AnimatedList } from "@/components/react-bits/animated-list";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface ChecklistItem {
@@ -42,46 +40,60 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
   }
 
   return (
-    <AnimatedCard hoverEffect="glow">
-      <CardHeader className="pb-3">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Daily Checklist</CardTitle>
-          <span className="text-sm text-muted-foreground">
+          <CardTitle className="text-base font-semibold">Daily Checklist</CardTitle>
+          <span className="text-sm font-medium tabular-nums text-muted-foreground">
             {completed}/{total}
           </span>
         </div>
-        <Progress value={pct} className="h-2 transition-all duration-500" />
+        <div className="relative mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-700 ease-out"
+            style={{ width: `${pct}%` }}
+          />
+          {pct > 0 && pct < 100 && (
+            <div
+              className="absolute top-0 h-full w-4 animate-pulse rounded-full bg-white/30 blur-sm"
+              style={{ left: `calc(${pct}% - 8px)` }}
+            />
+          )}
+        </div>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <AnimatedList animation="fade" staggerDelay={50}>
-          {items.map((item) => (
-            <label
-              key={item.id}
-              className="flex items-center gap-3 rounded-lg border p-3 transition-all hover:bg-muted/50 hover:scale-[1.02] cursor-pointer"
-            >
-              <Checkbox
-                checked={item.completed}
-                onCheckedChange={(checked) =>
-                  handleToggle(item.id, checked === true)
-                }
-              />
-              <span
-                className={cn(
-                  "transition-all duration-300",
-                  item.completed
-                    ? "line-through text-muted-foreground"
-                    : ""
-                )}
-              >
-                {item.title}
-              </span>
-              {item.completed && (
-                <CheckCircle2 className="ml-auto h-4 w-4 text-green-500 animate-in fade-in zoom-in duration-300" />
+      <CardContent className="space-y-1.5 pb-5">
+        {items.map((item) => (
+          <label
+            key={item.id}
+            className={cn(
+              "group flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all duration-300",
+              "hover:bg-muted/50 hover:shadow-sm hover:border-primary/20",
+              item.completed && "bg-green-500/5 border-green-500/20"
+            )}
+          >
+            <Checkbox
+              checked={item.completed}
+              onCheckedChange={(checked) =>
+                handleToggle(item.id, checked === true)
+              }
+              className="transition-transform duration-200 group-hover:scale-110"
+            />
+            <span
+              className={cn(
+                "flex-1 text-sm transition-all duration-300",
+                item.completed
+                  ? "line-through text-muted-foreground"
+                  : "group-hover:translate-x-0.5"
               )}
-            </label>
-          ))}
-        </AnimatedList>
+            >
+              {item.title}
+            </span>
+            {item.completed && (
+              <CheckCircle2 className="ml-auto h-4 w-4 text-green-500 transition-all duration-300 animate-in fade-in zoom-in-50" />
+            )}
+          </label>
+        ))}
       </CardContent>
-    </AnimatedCard>
+    </Card>
   );
 }

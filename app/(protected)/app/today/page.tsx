@@ -5,8 +5,6 @@ import { TodayWorkout } from "./today-workout";
 import { TodayMeals } from "./today-meals";
 import { StatCard } from "@/components/shared/stat-card";
 import { Flame, Target, Dumbbell, UtensilsCrossed } from "lucide-react";
-import { StaggeredText } from "@/components/react-bits/staggered-text";
-import { AnimatedList } from "@/components/react-bits/animated-list";
 
 export default async function TodayPage() {
   const supabase = await createClient();
@@ -47,21 +45,23 @@ export default async function TodayPage() {
   const totalItems = checklist?.checklist_items?.length ?? 0;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">
-          <StaggeredText text="Today" as="span" />
-        </h1>
-        <p className="text-muted-foreground">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="relative">
+          <h1 className="text-3xl font-bold tracking-tight">Today</h1>
+          <p className="mt-1 text-muted-foreground">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
       </div>
 
-      <AnimatedList className="grid grid-cols-2 gap-3 sm:grid-cols-4" animation="fade" staggerDelay={100}>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           icon={Target}
           label="Daily Goal"
@@ -86,9 +86,13 @@ export default async function TodayPage() {
           value={mealsToday ?? 0}
           subtitle="logged today"
         />
-      </AnimatedList>
+      </div>
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {checklist && <ChecklistCard checklist={checklist} />}
+
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div className="grid gap-4 md:grid-cols-2">
         <TodayWorkout userId={user.id} />

@@ -16,10 +16,12 @@ export async function TodayWorkout({ userId }: { userId: string }) {
 
   if (!plan) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm text-muted-foreground">No workout plan yet</p>
+      <Card className="overflow-hidden">
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <div className="rounded-full bg-muted p-3">
+            <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">No workout plan yet</p>
         </CardContent>
       </Card>
     );
@@ -36,49 +38,60 @@ export async function TodayWorkout({ userId }: { userId: string }) {
 
   if (!workoutDay) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-8">
-          <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm text-muted-foreground">Rest day today</p>
+      <Card className="overflow-hidden">
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <div className="rounded-full bg-muted p-3">
+            <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
+          </div>
+          <p className="mt-3 text-sm text-muted-foreground">Rest day today</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-primary/8 to-transparent pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Dumbbell className="h-4 w-4" />
+          <CardTitle className="flex items-center gap-2 text-base">
+            <div className="rounded-lg bg-primary/10 p-1.5">
+              <Dumbbell className="h-4 w-4 text-primary" />
+            </div>
             Today&apos;s Workout
           </CardTitle>
-          <Badge variant="secondary">{workoutDay.focus}</Badge>
+          <Badge variant="secondary" className="font-medium">
+            {workoutDay.focus}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         <h3 className="font-semibold">{workoutDay.name}</h3>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-sm text-muted-foreground">
           {workoutDay.workout_exercises?.length ?? 0} exercises
         </p>
-        <div className="mt-3 space-y-1">
+        <div className="mt-3 space-y-1.5">
           {workoutDay.workout_exercises?.slice(0, 3).map((ex: { id: string; name: string; sets: number; reps: string }) => (
-            <div key={ex.id} className="text-sm text-muted-foreground">
-              {ex.name} — {ex.sets}x{ex.reps}
+            <div
+              key={ex.id}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-primary/50" />
+              <span>{ex.name}</span>
+              <span className="ml-auto text-xs tabular-nums">{ex.sets}x{ex.reps}</span>
             </div>
           ))}
           {(workoutDay.workout_exercises?.length ?? 0) > 3 && (
-            <div className="text-xs text-muted-foreground">
+            <div className="px-3 text-xs text-muted-foreground">
               +{workoutDay.workout_exercises.length - 3} more
             </div>
           )}
         </div>
         <Link
           href={`/app/workouts/${workoutDay.id}`}
-          className="mt-4 w-full inline-flex items-center justify-center rounded-lg border border-border bg-background px-2.5 h-8 text-sm font-medium hover:bg-muted transition-all"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110"
         >
           Start Workout
-          <ArrowRight className="ml-2 h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </CardContent>
     </Card>

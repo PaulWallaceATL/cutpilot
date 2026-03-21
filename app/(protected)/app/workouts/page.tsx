@@ -4,9 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Dumbbell, ChevronRight } from "lucide-react";
-import { AnimatedCard, CardContent as AnimatedCardContent, CardHeader as AnimatedCardHeader, CardTitle as AnimatedCardTitle } from "@/components/react-bits/animated-card";
-import { AnimatedList } from "@/components/react-bits/animated-list";
-import { StaggeredText } from "@/components/react-bits/staggered-text";
 
 export default async function WorkoutsPage() {
   const supabase = await createClient();
@@ -26,7 +23,14 @@ export default async function WorkoutsPage() {
   if (!plan) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Workouts</h1>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+          <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+          <div className="relative">
+            <h1 className="text-3xl font-bold tracking-tight font-heading">Workouts</h1>
+            <p className="mt-1 text-muted-foreground">Your training plan</p>
+          </div>
+        </div>
         <EmptyState
           icon={Dumbbell}
           title="No Workout Plan"
@@ -43,32 +47,34 @@ export default async function WorkoutsPage() {
     .order("day_number");
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">
-          <StaggeredText text="Workouts" as="span" />
-        </h1>
-        <p className="text-muted-foreground">{plan.name}</p>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="relative">
+          <h1 className="text-3xl font-bold tracking-tight font-heading">Workouts</h1>
+          <p className="mt-1 text-muted-foreground">{plan.name}</p>
+        </div>
       </div>
 
-      <AnimatedList className="space-y-3" animation="slide" staggerDelay={80}>
+      <div className="space-y-3">
         {days?.map((day) => (
-          <Link key={day.id} href={`/app/workouts/${day.id}`}>
-            <AnimatedCard hoverEffect="lift" className="w-full">
-              <AnimatedCardContent className="flex items-center justify-between p-4">
+          <Link key={day.id} href={`/app/workouts/${day.id}`} className="group block">
+            <Card className="w-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/5 border-border/50">
+              <CardContent className="flex items-center justify-between p-4 sm:p-5">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 transition-transform hover:scale-110">
-                    <span className="text-sm font-bold text-primary">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-sm">
+                    <span className="text-sm font-bold text-primary-foreground">
                       D{day.day_number}
                     </span>
                   </div>
                   <div>
-                    <AnimatedCardHeader className="p-0">
-                      <AnimatedCardTitle className="text-base">{day.name}</AnimatedCardTitle>
-                    </AnimatedCardHeader>
-                    <div className="flex items-center gap-2 mt-1">
+                    <CardHeader className="p-0">
+                      <CardTitle className="text-base font-semibold">{day.name}</CardTitle>
+                    </CardHeader>
+                    <div className="flex items-center gap-2 mt-1.5">
                       {day.focus && (
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs font-medium">
                           {day.focus}
                         </Badge>
                       )}
@@ -78,12 +84,12 @@ export default async function WorkoutsPage() {
                     </div>
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
-              </AnimatedCardContent>
-            </AnimatedCard>
+                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-hover:translate-x-1" />
+              </CardContent>
+            </Card>
           </Link>
         ))}
-      </AnimatedList>
+      </div>
     </div>
   );
 }

@@ -3,11 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-export async function updateProfile(data: {
-  full_name?: string;
-  unit_system?: "imperial" | "metric";
-  timezone?: string;
-}) {
+export async function updateProfile(data: Record<string, unknown>) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,6 +19,7 @@ export async function updateProfile(data: {
 
   revalidatePath("/app/profile");
   revalidatePath("/app/settings");
+  revalidatePath("/app/today");
   return { success: true };
 }
 
@@ -40,6 +37,8 @@ export async function updatePreferences(data: Record<string, unknown>) {
 
   if (error) return { error: "Failed to update preferences" };
 
+  revalidatePath("/app/profile");
   revalidatePath("/app/settings");
+  revalidatePath("/app/today");
   return { success: true };
 }

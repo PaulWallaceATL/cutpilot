@@ -32,14 +32,25 @@ export default async function ProgressPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Progress</h1>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="relative">
+          <h1 className="text-3xl font-bold tracking-tight font-heading">Progress</h1>
+          <p className="mt-1 text-muted-foreground">Track your journey over time</p>
+        </div>
+      </div>
 
-      <WeightLogSection
-        logs={weightLogs || []}
-        targetWeight={prefs?.target_weight_kg}
-      />
+      <div className="space-y-8">
+        <WeightLogSection
+          logs={weightLogs || []}
+          targetWeight={prefs?.target_weight_kg}
+        />
 
-      <ProgressPhotosSection photos={photos || []} userId={user.id} />
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+        <ProgressPhotosSection photos={photos || []} userId={user.id} />
+      </div>
     </div>
   );
 }

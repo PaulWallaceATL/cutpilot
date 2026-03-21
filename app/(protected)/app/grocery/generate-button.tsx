@@ -5,7 +5,7 @@ import { generateGroceryList } from "@/actions/grocery";
 import { ShoppingCart, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { GradientButton } from "@/components/react-bits/gradient-button";
+import { Button } from "@/components/ui/button";
 
 export function GenerateButton() {
   const [loading, setLoading] = useState(false);
@@ -24,13 +24,13 @@ export function GenerateButton() {
   }
 
   return (
-    <GradientButton onClick={handleGenerate} disabled={loading} size="sm" gradient="blue">
+    <Button onClick={handleGenerate} disabled={loading} size="sm" className="bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg transition-all">
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <ShoppingCart className="mr-2 h-4 w-4" />
       )}
       Generate List
-    </GradientButton>
+    </Button>
   );
 }

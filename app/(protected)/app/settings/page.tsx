@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -58,32 +57,42 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold flex items-center gap-2">
-        <Settings className="h-6 w-6" />
-        Settings
-      </h1>
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative flex items-center gap-3">
+          <div className="rounded-xl bg-primary/10 p-2.5">
+            <Settings className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+            <p className="text-sm text-muted-foreground">Manage your account preferences</p>
+          </div>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">General</CardTitle>
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-primary/8 to-transparent">
+          <CardTitle className="text-base font-semibold">General</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 pt-6">
           <div className="space-y-2">
-            <Label>Full Name</Label>
+            <Label className="text-sm font-medium">Full Name</Label>
             <Input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              className="rounded-xl border-border/60 bg-muted/30 transition-colors focus:bg-background"
+              placeholder="Enter your full name"
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Unit System</Label>
+            <Label className="text-sm font-medium">Unit System</Label>
             <Select
               value={unitSystem}
               onValueChange={(v) => v && setUnitSystem(v as "imperial" | "metric")}
             >
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/60 bg-muted/30 transition-colors focus:bg-background">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -94,9 +103,9 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label>Timezone</Label>
+            <Label className="text-sm font-medium">Timezone</Label>
             <Select value={timezone} onValueChange={(v) => v && setTimezone(v)}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-xl border-border/60 bg-muted/30 transition-colors focus:bg-background">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -112,12 +121,16 @@ export default function SettingsPage() {
             </Select>
           </div>
 
-          <Button onClick={handleSave} disabled={loading} className="w-full">
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : null}
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110 disabled:pointer-events-none disabled:opacity-50"
+          >
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             Save Settings
-          </Button>
+          </button>
         </CardContent>
       </Card>
     </div>

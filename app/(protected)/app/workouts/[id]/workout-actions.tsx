@@ -5,7 +5,7 @@ import { startWorkout, completeWorkout } from "@/actions/workouts";
 import { Play, CheckCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { GradientButton } from "@/components/react-bits/gradient-button";
+import { Button } from "@/components/ui/button";
 
 interface WorkoutActionsProps {
   workoutDayId: string;
@@ -49,23 +49,22 @@ export function WorkoutActions({
 
   if (!logId) {
     return (
-      <GradientButton onClick={handleStart} disabled={loading} className="w-full" gradient="rainbow">
+      <Button onClick={handleStart} disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg transition-all">
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Play className="mr-2 h-4 w-4" />
         )}
         Start Workout
-      </GradientButton>
+      </Button>
     );
   }
 
   return (
-    <GradientButton
+    <Button
       onClick={handleComplete}
       disabled={loading}
-      className="w-full"
-      gradient="primary"
+      className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg transition-all"
     >
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -73,6 +72,6 @@ export function WorkoutActions({
         <CheckCircle className="mr-2 h-4 w-4" />
       )}
       Complete Workout
-    </GradientButton>
+    </Button>
   );
 }

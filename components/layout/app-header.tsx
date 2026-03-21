@@ -22,27 +22,35 @@ export function AppHeader() {
     : user?.email?.[0]?.toUpperCase() || "U";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b px-4 md:px-6">
+    <header className="flex h-14 items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-xl md:px-6">
       <div className="flex items-center gap-2 md:hidden">
-        <Zap className="h-5 w-5 text-primary" />
-        <span className="font-bold">CutPilot</span>
+        <div className="relative flex items-center justify-center">
+          <div className="absolute inset-0 -m-1 rounded-full bg-primary/20 blur-md" />
+          <Zap className="relative h-5 w-5 text-primary drop-shadow-sm" />
+        </div>
+        <span className="font-bold tracking-tight">CutPilot</span>
       </div>
 
       <div className="hidden md:block" />
 
       <DropdownMenu>
-        <DropdownMenuTrigger className="relative flex h-8 w-8 items-center justify-center rounded-full hover:bg-muted outline-none">
+        <DropdownMenuTrigger className="relative flex h-9 w-9 items-center justify-center rounded-full outline-none ring-2 ring-primary/30 ring-offset-2 ring-offset-background transition-all duration-200 hover:ring-primary/50">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            <AvatarFallback className="bg-primary/10 text-xs font-medium text-primary">
+              {initials}
+            </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent
+          align="end"
+          className="min-w-[180px] border-border/50 bg-card/95 backdrop-blur-xl"
+        >
           <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
             {user?.email}
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => logout()}
-            className="text-destructive"
+            className="text-destructive focus:text-destructive"
           >
             Log out
           </DropdownMenuItem>

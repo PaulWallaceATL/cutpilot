@@ -22,10 +22,19 @@ export default async function GroceryPage() {
   const latestList = lists?.[0];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Grocery List</h1>
-        <GenerateButton />
+    <div className="space-y-8">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
+        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+        <div className="relative flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight font-heading">Grocery List</h1>
+            <p className="mt-1 text-muted-foreground">
+              {latestList ? "Your shopping list from your meal plan" : "Generate a list from your meal plan"}
+            </p>
+          </div>
+          <GenerateButton />
+        </div>
       </div>
 
       {latestList ? (
