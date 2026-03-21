@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import LetterSwap from "@/components/react-bits/3d-letter-swap";
 import BlurHighlight from "@/components/react-bits/blur-highlight";
-import AuroraBlur from "@/components/react-bits/aurora-blur";
+import { HeroBackground } from "@/components/shared/hero-background";
 
 const features = [
   {
@@ -80,19 +80,7 @@ export default function LandingPage() {
       <main className="flex-1 pt-16">
         {/* ── Hero ── */}
         <section className="relative isolate overflow-hidden py-28 md:py-40">
-          <div className="pointer-events-none absolute inset-0 -z-10 opacity-25">
-            <AuroraBlur
-              width="100%"
-              height="100%"
-              speed={0.4}
-              opacity={0.7}
-              brightness={0.9}
-              saturation={1.3}
-              noiseScale={2.5}
-              movementX={0.3}
-              movementY={0.1}
-            />
-          </div>
+          <HeroBackground />
 
           <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-background/30 via-background/70 to-background" />
 
