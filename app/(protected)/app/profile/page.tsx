@@ -278,13 +278,45 @@ export default function ProfilePage() {
 
   if (loading || userLoading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <div className="relative h-12 w-12">
+          <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse-glow" />
+          <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
+          <div className="absolute inset-1.5 rounded-full border-2 border-transparent border-t-primary/60 animate-spin" style={{ animationDirection: "reverse", animationDuration: "0.6s" }} />
+        </div>
+        <p className="text-sm text-muted-foreground animate-pulse">Loading profile...</p>
       </div>
     );
   }
 
-  if (!user || !profile) return null;
+  if (!user) return null;
+
+  if (!profile) {
+    return (
+      <div className="space-y-6">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6">
+          <h1 className="text-2xl font-bold">Profile</h1>
+          <p className="text-sm text-muted-foreground mt-1">Set up your profile to get started</p>
+        </div>
+        <Card>
+          <CardContent className="py-12 text-center">
+            <User className="mx-auto h-12 w-12 text-muted-foreground/30" />
+            <h3 className="mt-4 text-lg font-semibold">No Profile Data</h3>
+            <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
+              Complete the onboarding process to set up your fitness profile, goals, and preferences.
+            </p>
+            <a
+              href="/onboarding"
+              className="mt-6 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-2.5 text-sm font-medium hover:shadow-lg transition-all"
+            >
+              Complete Setup
+            </a>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   /* -- Render -- */
 
