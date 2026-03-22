@@ -24,7 +24,7 @@ export const mealAssistantResponseSchema = z.object({
 });
 
 const assistantActionSchema = z.object({
-  action_type: z.enum(["update_profile", "update_preferences", "add_injury", "remove_injury", "generate_plans"]).describe("The type of action to perform"),
+  action_type: z.enum(["update_profile", "update_preferences", "add_injury", "remove_injury", "generate_plans", "add_checklist_item"]).describe("The type of action to perform"),
   profile_fields: z.object({
     full_name: z.string().nullable().optional(),
   }).nullable().optional().describe("Only for update_profile actions"),
@@ -48,6 +48,8 @@ const assistantActionSchema = z.object({
   injury_body_part: z.string().nullable().optional().describe("Body part for add_injury or remove_injury"),
   injury_severity: z.enum(["mild", "moderate", "severe"]).nullable().optional().describe("Severity for add_injury"),
   injury_description: z.string().nullable().optional().describe("Description for add_injury"),
+  checklist_title: z.string().nullable().optional().describe("Title for add_checklist_item (e.g. 'Doctor appointment at 3pm')"),
+  checklist_type: z.enum(["workout", "meal", "water", "sleep", "supplement", "custom"]).nullable().optional().describe("Category for add_checklist_item, default to custom"),
 });
 
 export const globalAssistantResponseSchema = z.object({

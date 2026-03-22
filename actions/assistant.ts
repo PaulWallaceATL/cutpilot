@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { globalAssistant, type UserContext } from "@/lib/openai/global-assistant";
 import { regenerateWorkout, regenerateMeal } from "@/actions/plan";
+import { addChecklistItem } from "@/actions/checklist";
 import type { AssistantAction } from "@/lib/schemas/assistant";
 
 async function ensureRowsExist(userId: string) {
@@ -95,6 +96,15 @@ async function executeActions(
           if (wpResult?.success) log.push("Generated new workout plan");
           const mpResult = await regenerateMeal();
           if (mpResult?.success) log.push("Generated new meal plan");
+          break;
+        }
+        case "add_checklist_item": {
+          if (!action.checklist_title) break;
+          const result = await addChecklistItem(
+            action.checklist_title,
+            action.checklist_type ?? "custom"
+          );
+          if (result?.success) log.push(`Added to today's checklist: ${action.checklist_title}`);
           break;
         }
         case "add_injury": {

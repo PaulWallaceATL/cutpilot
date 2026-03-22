@@ -134,6 +134,50 @@ export async function getOrCreateDailyChecklist() {
   return { data: checklist };
 }
 
+export async function addChecklistItem(title: string, itemType: string = "custom") {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const today = new Date().toISOString().split("T")[0];
+
+  let { data: checklist } = await supabase
+    .from("daily_checklists")
+    .select("id, checklist_items(order_index)")
+    .eq("user_id", user.id)
+    .eq("date", today)
+    .single();
+
+  if (!checklist) {
+    const { data: newChecklist } = await supabase
+      .from("daily_checklists")
+      .insert({ user_id: user.id, date: today })
+      .select("id")
+      .single();
+    if (!newChecklist) return { error: "Failed to create checklist" };
+    checklist = { id: newChecklist.id, checklist_items: [] };
+  }
+
+  const maxOrder = Array.isArray(checklist.checklist_items)
+    ? Math.max(0, ...checklist.checklist_items.map((i: { order_index: number }) => i.order_index))
+    : 0;
+
+  const { error } = await supabase.from("checklist_items").insert({
+    user_id: user.id,
+    checklist_id: checklist.id,
+    title,
+    item_type: itemType,
+    order_index: maxOrder + 1,
+  });
+
+  if (error) return { error: "Failed to add item" };
+
+  revalidatePath("/app/today");
+  return { success: true };
+}
+
 export async function toggleChecklistItem(
   itemId: string,
   completed: boolean

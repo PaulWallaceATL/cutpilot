@@ -102,6 +102,7 @@ Each action is an object with action_type plus the relevant fields:
 - action_type "add_injury": set injury_body_part, injury_severity (mild/moderate/severe), and optionally injury_description
 - action_type "remove_injury": set injury_body_part to mark it as resolved
 - action_type "generate_plans": Generate personalized workout AND meal plans based on the user's current profile. Use this when: (1) the user has provided enough info (at minimum: fitness_goal, experience_level, and workout_days_per_week), AND (2) they don't have plans yet or ask for new ones. No extra fields needed — it reads from the saved profile.
+- action_type "add_checklist_item": Add an item to today's daily checklist. Set checklist_title (e.g. "Doctor appointment at 3pm", "Grocery shopping", "Therapy session", "Take creatine") and checklist_type (custom/workout/meal/water/sleep/supplement). Use this when the user mentions tasks, appointments, reminders, or anything they want to track today.
 
 IMPORTANT: When you save data, confirm it naturally in your message (e.g. "Got it, I've saved your weight as 82kg!"). Only include actions for data the user explicitly provides — never assume or make up values.
 
