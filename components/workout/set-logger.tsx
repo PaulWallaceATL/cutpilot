@@ -87,7 +87,6 @@ export function SetLogger({
               }
               placeholder="lbs"
               className="h-8 text-sm"
-              disabled={!workoutLogId}
             />
             <Input
               type="number"
@@ -97,7 +96,6 @@ export function SetLogger({
               }
               placeholder="reps"
               className="h-8 text-sm"
-              disabled={!workoutLogId}
             />
             <Checkbox
               checked={set.completed}
