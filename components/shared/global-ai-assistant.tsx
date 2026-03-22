@@ -13,6 +13,7 @@ import {
   Sparkles,
   Trash2,
   Minimize2,
+  CheckCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -25,13 +26,14 @@ interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+  actions?: string[];
 }
 
 const QUICK_PROMPTS = [
+  "Hey! Help me set up my profile",
   "What should I eat post-workout?",
-  "How do I improve my bench press form?",
-  "Am I on track with my goals?",
-  "Suggest a quick stretch routine",
+  "I need a new workout plan",
+  "Help me hit my protein target today",
 ];
 
 export function GlobalAiAssistant() {
@@ -95,6 +97,7 @@ export function GlobalAiAssistant() {
             id: `assistant-${Date.now()}`,
             role: "assistant",
             content: result.data.message,
+            actions: result.data.actions,
           },
         ]);
         if (result.data.suggestions?.length) {
@@ -123,7 +126,7 @@ export function GlobalAiAssistant() {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating trigger */}
       <button
         onClick={() => setOpen(true)}
         className={cn(
@@ -147,7 +150,7 @@ export function GlobalAiAssistant() {
           "fixed z-50 flex flex-col overflow-hidden rounded-2xl border border-border/50 bg-background/95 backdrop-blur-xl shadow-2xl transition-all duration-300",
           "bottom-24 right-4 md:bottom-6 md:right-6",
           open
-            ? "h-[min(580px,calc(100vh-7rem))] w-[min(400px,calc(100vw-2rem))] opacity-100 translate-y-0"
+            ? "h-[min(600px,calc(100vh-7rem))] w-[min(420px,calc(100vw-2rem))] opacity-100 translate-y-0"
             : "h-0 w-0 opacity-0 translate-y-4 pointer-events-none"
         )}
       >
@@ -160,7 +163,7 @@ export function GlobalAiAssistant() {
             <div>
               <span className="text-sm font-semibold">CutPilot AI</span>
               <p className="text-[10px] text-muted-foreground leading-none mt-0.5">
-                Your fitness co-pilot
+                Your personal fitness companion
               </p>
             </div>
           </div>
@@ -212,11 +215,10 @@ export function GlobalAiAssistant() {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold">
-                    Hey! I&apos;m your CutPilot AI
+                    Hey! I&apos;m CutPilot
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground max-w-[260px] mx-auto">
-                    Ask me anything about workouts, nutrition, form, recovery, or
-                    your fitness goals.
+                  <p className="mt-1.5 text-xs text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
+                    I&apos;m your personal fitness companion. I can set up your profile, plan your workouts, track your nutrition, and coach you through everything. Just chat with me like a friend.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1.5 justify-center pt-1">
@@ -234,36 +236,52 @@ export function GlobalAiAssistant() {
             )}
 
             {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={cn(
-                  "flex gap-2.5",
-                  msg.role === "user" ? "justify-end" : "justify-start"
-                )}
-              >
-                {msg.role === "assistant" && (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mt-0.5">
-                    <Bot className="h-3 w-3 text-primary" />
-                  </div>
-                )}
+              <div key={msg.id} className="space-y-1.5">
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed",
-                    msg.role === "user"
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-muted/80 rounded-bl-md"
+                    "flex gap-2.5",
+                    msg.role === "user" ? "justify-end" : "justify-start"
                   )}
                 >
-                  {msg.content.split("\n").map((line, i) => (
-                    <span key={i}>
-                      {line}
-                      {i < msg.content.split("\n").length - 1 && <br />}
-                    </span>
-                  ))}
+                  {msg.role === "assistant" && (
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mt-0.5">
+                      <Bot className="h-3 w-3 text-primary" />
+                    </div>
+                  )}
+                  <div
+                    className={cn(
+                      "max-w-[80%] rounded-2xl px-3.5 py-2 text-[13px] leading-relaxed",
+                      msg.role === "user"
+                        ? "bg-primary text-primary-foreground rounded-br-md"
+                        : "bg-muted/80 rounded-bl-md"
+                    )}
+                  >
+                    {msg.content.split("\n").map((line, i, arr) => (
+                      <span key={i}>
+                        {line}
+                        {i < arr.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </div>
+                  {msg.role === "user" && (
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary mt-0.5">
+                      <User className="h-3 w-3" />
+                    </div>
+                  )}
                 </div>
-                {msg.role === "user" && (
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary mt-0.5">
-                    <User className="h-3 w-3" />
+
+                {/* Action confirmations */}
+                {msg.actions && msg.actions.length > 0 && (
+                  <div className="ml-8 flex flex-col gap-1">
+                    {msg.actions.map((action, i) => (
+                      <div
+                        key={i}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-green-500/10 border border-green-500/20 px-2.5 py-1 text-[11px] text-green-700 dark:text-green-400 w-fit"
+                      >
+                        <CheckCircle className="h-3 w-3 shrink-0" />
+                        {action}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -312,7 +330,7 @@ export function GlobalAiAssistant() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask CutPilot anything..."
+              placeholder="Tell me about yourself..."
               disabled={sending}
               className="flex-1 text-sm rounded-xl bg-muted/50 border-border/50"
             />

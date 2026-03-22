@@ -1,7 +1,134 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { globalAssistant } from "@/lib/openai/global-assistant";
+import { revalidatePath } from "next/cache";
+import { globalAssistant, type UserContext } from "@/lib/openai/global-assistant";
+import type { AssistantAction } from "@/lib/schemas/assistant";
+
+async function executeActions(
+  userId: string,
+  actions: AssistantAction[]
+): Promise<string[]> {
+  const supabase = await createClient();
+  const log: string[] = [];
+
+  for (const action of actions) {
+    switch (action.type) {
+      case "update_profile": {
+        const clean: Record<string, unknown> = {};
+        if (action.fields.full_name !== undefined) clean.full_name = action.fields.full_name;
+        if (Object.keys(clean).length > 0) {
+          const { error } = await supabase.from("profiles").update(clean).eq("id", userId);
+          if (!error) log.push(`Updated profile: ${Object.keys(clean).join(", ")}`);
+        }
+        break;
+      }
+      case "update_preferences": {
+        const clean: Record<string, unknown> = {};
+        const f = action.fields;
+        if (f.age !== undefined) clean.age = f.age;
+        if (f.sex !== undefined) clean.sex = f.sex;
+        if (f.height_cm !== undefined) clean.height_cm = f.height_cm;
+        if (f.weight_kg !== undefined) clean.weight_kg = f.weight_kg;
+        if (f.target_weight_kg !== undefined) clean.target_weight_kg = f.target_weight_kg;
+        if (f.fitness_goal !== undefined) clean.fitness_goal = f.fitness_goal;
+        if (f.experience_level !== undefined) clean.experience_level = f.experience_level;
+        if (f.activity_level !== undefined) clean.activity_level = f.activity_level;
+        if (f.diet_type !== undefined) clean.diet_type = f.diet_type;
+        if (f.workout_days_per_week !== undefined) clean.workout_days_per_week = f.workout_days_per_week;
+        if (f.calorie_target !== undefined) clean.calorie_target = f.calorie_target;
+        if (f.protein_target_g !== undefined) clean.protein_target_g = f.protein_target_g;
+        if (f.carb_target_g !== undefined) clean.carb_target_g = f.carb_target_g;
+        if (f.fat_target_g !== undefined) clean.fat_target_g = f.fat_target_g;
+        if (f.dietary_restrictions !== undefined) clean.dietary_restrictions = f.dietary_restrictions;
+        if (Object.keys(clean).length > 0) {
+          const { error } = await supabase.from("user_preferences").update(clean).eq("user_id", userId);
+          if (!error) log.push(`Updated preferences: ${Object.keys(clean).join(", ")}`);
+        }
+        break;
+      }
+      case "add_injury": {
+        const { error } = await supabase.from("injuries").insert({
+          user_id: userId,
+          body_part: action.body_part,
+          severity: action.severity,
+          description: action.description ?? null,
+          is_active: true,
+        });
+        if (!error) log.push(`Added injury: ${action.body_part} (${action.severity})`);
+        break;
+      }
+      case "remove_injury": {
+        const { error } = await supabase
+          .from("injuries")
+          .update({ is_active: false })
+          .eq("user_id", userId)
+          .ilike("body_part", `%${action.body_part}%`)
+          .eq("is_active", true);
+        if (!error) log.push(`Resolved injury: ${action.body_part}`);
+        break;
+      }
+    }
+  }
+
+  if (log.length > 0) {
+    revalidatePath("/app/profile");
+    revalidatePath("/app/settings");
+    revalidatePath("/app/today");
+    revalidatePath("/app/workouts");
+    revalidatePath("/app/meals");
+  }
+
+  return log;
+}
+
+async function loadUserContext(userId: string): Promise<UserContext> {
+  const supabase = await createClient();
+
+  const [{ data: profile }, { data: prefs }, { data: injuries }, { data: logs }] =
+    await Promise.all([
+      supabase.from("profiles").select("full_name, email, onboarding_completed").eq("id", userId).single(),
+      supabase.from("user_preferences").select("*").eq("user_id", userId).single(),
+      supabase.from("injuries").select("body_part, severity").eq("user_id", userId).eq("is_active", true),
+      supabase.from("workout_logs").select("date").eq("user_id", userId).eq("completed", true).order("date", { ascending: false }).limit(60),
+    ]);
+
+  let streak = 0;
+  if (logs && logs.length > 0) {
+    const dates = [...new Set(logs.map((l) => l.date))].sort().reverse();
+    const today = new Date();
+    for (let i = 0; i < dates.length; i++) {
+      const expected = new Date(today);
+      expected.setDate(expected.getDate() - i);
+      if (dates[i] === expected.toISOString().split("T")[0]) streak++;
+      else break;
+    }
+  }
+
+  return {
+    name: profile?.full_name ?? null,
+    email: profile?.email ?? null,
+    onboardingCompleted: profile?.onboarding_completed ?? false,
+    age: prefs?.age ?? null,
+    sex: prefs?.sex ?? null,
+    heightCm: prefs?.height_cm ?? null,
+    weightKg: prefs?.weight_kg ?? null,
+    targetWeightKg: prefs?.target_weight_kg ?? null,
+    fitnessGoal: prefs?.fitness_goal ?? null,
+    experienceLevel: prefs?.experience_level ?? null,
+    activityLevel: prefs?.activity_level ?? null,
+    dietType: prefs?.diet_type ?? null,
+    workoutDaysPerWeek: prefs?.workout_days_per_week ?? null,
+    calorieTarget: prefs?.calorie_target ?? null,
+    proteinTarget: prefs?.protein_target_g ?? null,
+    carbTarget: prefs?.carb_target_g ?? null,
+    fatTarget: prefs?.fat_target_g ?? null,
+    dietaryRestrictions: prefs?.dietary_restrictions ?? [],
+    injuries: (injuries ?? []).map((i) => ({ body_part: i.body_part, severity: i.severity })),
+    workoutsCompleted: logs?.length ?? 0,
+    currentStreak: streak,
+  };
+}
 
 export async function askGlobalAssistant(message: string) {
   const supabase = await createClient();
@@ -10,16 +137,7 @@ export async function askGlobalAssistant(message: string) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not authenticated" };
 
-  const [{ data: profile }, { data: prefs }, { data: injuries }] =
-    await Promise.all([
-      supabase.from("profiles").select("full_name").eq("id", user.id).single(),
-      supabase.from("user_preferences").select("*").eq("user_id", user.id).single(),
-      supabase
-        .from("injuries")
-        .select("body_part, severity")
-        .eq("user_id", user.id)
-        .eq("is_active", true),
-    ]);
+  const context = await loadUserContext(user.id);
 
   let { data: thread } = await supabase
     .from("ai_threads")
@@ -60,22 +178,12 @@ export async function askGlobalAssistant(message: string) {
     .eq("thread_id", thread.id)
     .order("created_at", { ascending: true });
 
-  const context = {
-    name: profile?.full_name ?? null,
-    fitnessGoal: prefs?.fitness_goal ?? null,
-    experienceLevel: prefs?.experience_level ?? null,
-    dietType: prefs?.diet_type ?? null,
-    calorieTarget: prefs?.calorie_target ?? null,
-    proteinTarget: prefs?.protein_target_g ?? null,
-    carbTarget: prefs?.carb_target_g ?? null,
-    fatTarget: prefs?.fat_target_g ?? null,
-    currentWeight: prefs?.weight_kg ?? null,
-    targetWeight: prefs?.target_weight_kg ?? null,
-    workoutDaysPerWeek: prefs?.workout_days_per_week ?? null,
-    injuries: (injuries ?? []).map((i) => `${i.body_part} (${i.severity})`),
-  };
-
   const response = await globalAssistant(message, history || [], context);
+
+  let actionLog: string[] = [];
+  if (response.actions && response.actions.length > 0) {
+    actionLog = await executeActions(user.id, response.actions);
+  }
 
   await supabase.from("ai_messages").insert({
     user_id: user.id,
@@ -84,7 +192,13 @@ export async function askGlobalAssistant(message: string) {
     content: response.message,
   });
 
-  return { data: response };
+  return {
+    data: {
+      message: response.message,
+      suggestions: response.suggestions,
+      actions: actionLog,
+    },
+  };
 }
 
 export async function getGlobalChatHistory() {

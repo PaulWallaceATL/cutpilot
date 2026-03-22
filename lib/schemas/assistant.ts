@@ -23,12 +23,60 @@ export const mealAssistantResponseSchema = z.object({
   suggestions: z.array(z.string()).nullable().optional(),
 });
 
-export const globalAssistantResponseSchema = z.object({
-  message: z.string().describe("The assistant's response"),
-  suggestions: z.array(z.string()).nullable().optional().describe("2-3 follow-up question suggestions"),
-  category: z.enum(["workout", "nutrition", "motivation", "recovery", "general"]).nullable().optional().describe("Category of the question"),
+const profileActionSchema = z.object({
+  type: z.literal("update_profile"),
+  fields: z.object({
+    full_name: z.string().nullable().optional(),
+  }).describe("Profile fields to update"),
 });
 
+const preferencesActionSchema = z.object({
+  type: z.literal("update_preferences"),
+  fields: z.object({
+    age: z.number().nullable().optional(),
+    sex: z.enum(["male", "female", "other"]).nullable().optional(),
+    height_cm: z.number().nullable().optional(),
+    weight_kg: z.number().nullable().optional(),
+    target_weight_kg: z.number().nullable().optional(),
+    fitness_goal: z.enum(["lose_fat", "build_muscle", "maintain", "recomp", "improve_health"]).nullable().optional(),
+    experience_level: z.enum(["beginner", "intermediate", "advanced"]).nullable().optional(),
+    activity_level: z.enum(["sedentary", "light", "moderate", "active", "very_active"]).nullable().optional(),
+    diet_type: z.enum(["flexible", "keto", "paleo", "vegan", "vegetarian", "mediterranean"]).nullable().optional(),
+    workout_days_per_week: z.number().nullable().optional(),
+    calorie_target: z.number().nullable().optional(),
+    protein_target_g: z.number().nullable().optional(),
+    carb_target_g: z.number().nullable().optional(),
+    fat_target_g: z.number().nullable().optional(),
+    dietary_restrictions: z.array(z.string()).nullable().optional(),
+  }).describe("User preference fields to update"),
+});
+
+const addInjuryActionSchema = z.object({
+  type: z.literal("add_injury"),
+  body_part: z.string(),
+  severity: z.enum(["mild", "moderate", "severe"]),
+  description: z.string().nullable().optional(),
+});
+
+const removeInjuryActionSchema = z.object({
+  type: z.literal("remove_injury"),
+  body_part: z.string().describe("The body part to mark as resolved"),
+});
+
+const assistantActionSchema = z.discriminatedUnion("type", [
+  profileActionSchema,
+  preferencesActionSchema,
+  addInjuryActionSchema,
+  removeInjuryActionSchema,
+]);
+
+export const globalAssistantResponseSchema = z.object({
+  message: z.string().describe("The assistant's conversational response to the user"),
+  actions: z.array(assistantActionSchema).nullable().optional().describe("Actions to execute on the user's profile/preferences. Only include when the user explicitly provides info to save or asks to update something."),
+  suggestions: z.array(z.string()).nullable().optional().describe("2-3 follow-up question suggestions to keep the conversation going"),
+});
+
+export type AssistantAction = z.infer<typeof assistantActionSchema>;
 export type AIAssistantResponse = z.infer<typeof assistantResponseSchema>;
 export type AIWorkoutAssistantResponse = z.infer<typeof workoutAssistantResponseSchema>;
 export type AIMealAssistantResponse = z.infer<typeof mealAssistantResponseSchema>;
