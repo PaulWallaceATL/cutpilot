@@ -37,7 +37,10 @@ export function ExerciseCard({
             {exercise.sets} sets x {exercise.reps} reps
           </span>
           {exercise.rest_seconds && (
-            <span>{exercise.rest_seconds}s rest</span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block h-1 w-1 rounded-full bg-muted-foreground/40" />
+              {exercise.rest_seconds}s rest
+            </span>
           )}
         </div>
         {exercise.notes && (

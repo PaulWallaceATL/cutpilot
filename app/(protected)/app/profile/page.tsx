@@ -26,8 +26,9 @@ import {
   Loader2,
   Flame,
   Beef,
-  Wheat,
-  Droplets,
+  Dumbbell,
+  Timer,
+  TrendingUp,
   AlertTriangle,
 } from "lucide-react";
 
@@ -63,6 +64,13 @@ interface Injury {
   id: string;
   body_part: string;
   severity: string;
+}
+
+interface WorkoutStats {
+  totalWorkouts: number;
+  totalMinutes: number;
+  thisWeekWorkouts: number;
+  currentStreak: number;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -228,20 +236,59 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [prefs, setPrefs] = useState<Preferences | null>(null);
   const [injuries, setInjuries] = useState<Injury[]>([]);
+  const [workoutStats, setWorkoutStats] = useState<WorkoutStats>({
+    totalWorkouts: 0,
+    totalMinutes: 0,
+    thisWeekWorkouts: 0,
+    currentStreak: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!user) return;
 
-    const [profileRes, prefsRes, injuriesRes] = await Promise.all([
+    const startOfWeek = (() => {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setDate(diff)).toISOString().split("T")[0];
+    })();
+
+    const [profileRes, prefsRes, injuriesRes, allLogsRes, weekLogsRes] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).single(),
       supabase.from("user_preferences").select("*").eq("user_id", user.id).single(),
       supabase.from("injuries").select("*").eq("user_id", user.id).eq("is_active", true),
+      supabase.from("workout_logs").select("date, duration_minutes, completed").eq("user_id", user.id).eq("completed", true).order("date", { ascending: false }),
+      supabase.from("workout_logs").select("*", { count: "exact", head: true }).eq("user_id", user.id).eq("completed", true).gte("date", startOfWeek),
     ]);
+
+    const allLogs = allLogsRes.data ?? [];
+    const totalMinutes = allLogs.reduce((sum, l) => sum + (l.duration_minutes ?? 0), 0);
+
+    let streak = 0;
+    if (allLogs.length > 0) {
+      const dates = [...new Set(allLogs.map((l) => l.date))].sort().reverse();
+      const today = new Date();
+      for (let i = 0; i < dates.length; i++) {
+        const expected = new Date(today);
+        expected.setDate(expected.getDate() - i);
+        if (dates[i] === expected.toISOString().split("T")[0]) {
+          streak++;
+        } else {
+          break;
+        }
+      }
+    }
 
     setProfile(profileRes.data);
     setPrefs(prefsRes.data);
     setInjuries(injuriesRes.data ?? []);
+    setWorkoutStats({
+      totalWorkouts: allLogs.length,
+      totalMinutes,
+      thisWeekWorkouts: weekLogsRes.count ?? 0,
+      currentStreak: streak,
+    });
     setLoading(false);
   }, [user, supabase]);
 
@@ -345,6 +392,46 @@ export default function ProfilePage() {
           </div>
         </div>
       </Card>
+
+      {/* ---- Workout Stats ---- */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Card className="p-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+              <Dumbbell className="h-3.5 w-3.5 text-primary" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold tabular-nums">{workoutStats.totalWorkouts}</p>
+          <p className="text-[11px] text-muted-foreground">Total Workouts</p>
+        </Card>
+        <Card className="p-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/10">
+              <Timer className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold tabular-nums">{workoutStats.totalMinutes}</p>
+          <p className="text-[11px] text-muted-foreground">Total Minutes</p>
+        </Card>
+        <Card className="p-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10">
+              <TrendingUp className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold tabular-nums">{workoutStats.thisWeekWorkouts}</p>
+          <p className="text-[11px] text-muted-foreground">This Week</p>
+        </Card>
+        <Card className="p-3">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-500/10">
+              <Flame className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold tabular-nums">{workoutStats.currentStreak}</p>
+          <p className="text-[11px] text-muted-foreground">Day Streak</p>
+        </Card>
+      </div>
 
       {/* ---- Personal Info ---- */}
       <Card>

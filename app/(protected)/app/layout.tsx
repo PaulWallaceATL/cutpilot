@@ -2,6 +2,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { AppHeader } from "@/components/layout/app-header";
 import { OnboardingCheck } from "@/components/shared/onboarding-check";
+import { GlobalAiAssistant } from "@/components/shared/global-ai-assistant";
 
 export default function AppLayout({
   children,
@@ -20,6 +21,7 @@ export default function AppLayout({
       </div>
       <BottomNav />
       <OnboardingCheck />
+      <GlobalAiAssistant />
     </div>
   );
 }

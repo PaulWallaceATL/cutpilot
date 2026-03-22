@@ -23,6 +23,13 @@ export const mealAssistantResponseSchema = z.object({
   suggestions: z.array(z.string()).nullable().optional(),
 });
 
+export const globalAssistantResponseSchema = z.object({
+  message: z.string().describe("The assistant's response"),
+  suggestions: z.array(z.string()).nullable().optional().describe("2-3 follow-up question suggestions"),
+  category: z.enum(["workout", "nutrition", "motivation", "recovery", "general"]).nullable().optional().describe("Category of the question"),
+});
+
 export type AIAssistantResponse = z.infer<typeof assistantResponseSchema>;
 export type AIWorkoutAssistantResponse = z.infer<typeof workoutAssistantResponseSchema>;
 export type AIMealAssistantResponse = z.infer<typeof mealAssistantResponseSchema>;
+export type AIGlobalAssistantResponse = z.infer<typeof globalAssistantResponseSchema>;
