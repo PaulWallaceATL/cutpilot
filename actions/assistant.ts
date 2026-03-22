@@ -6,12 +6,43 @@ import { globalAssistant, type UserContext } from "@/lib/openai/global-assistant
 import { regenerateWorkout, regenerateMeal } from "@/actions/plan";
 import type { AssistantAction } from "@/lib/schemas/assistant";
 
+async function ensureRowsExist(userId: string) {
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("id", userId)
+    .single();
+
+  if (!profile) {
+    const { data: authUser } = await supabase.auth.getUser();
+    await supabase.from("profiles").upsert({
+      id: userId,
+      email: authUser?.user?.email ?? null,
+      onboarding_completed: false,
+    }, { onConflict: "id" });
+  }
+
+  const { data: prefs } = await supabase
+    .from("user_preferences")
+    .select("id")
+    .eq("user_id", userId)
+    .single();
+
+  if (!prefs) {
+    await supabase.from("user_preferences").insert({ user_id: userId });
+  }
+}
+
 async function executeActions(
   userId: string,
   actions: AssistantAction[]
 ): Promise<string[]> {
   const supabase = await createClient();
   const log: string[] = [];
+
+  await ensureRowsExist(userId);
 
   for (const action of actions) {
     try {
@@ -23,8 +54,9 @@ async function executeActions(
             clean.full_name = action.profile_fields.full_name;
           }
           if (Object.keys(clean).length > 0) {
+            clean.onboarding_completed = true;
             const { error } = await supabase.from("profiles").update(clean).eq("id", userId);
-            if (!error) log.push(`Updated profile: ${Object.keys(clean).join(", ")}`);
+            if (!error) log.push(`Updated profile: ${Object.keys(clean).filter(k => k !== "onboarding_completed").join(", ")}`);
           }
           break;
         }

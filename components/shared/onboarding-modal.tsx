@@ -8,9 +8,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Zap, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 interface OnboardingModalProps {
   open: boolean;
@@ -21,11 +20,10 @@ interface OnboardingModalProps {
 export function OnboardingModal({
   open,
   onOpenChange,
-  progress = 0,
 }: OnboardingModalProps) {
   const router = useRouter();
 
-  function handleStart() {
+  function handleTraditional() {
     router.push("/onboarding");
     onOpenChange(false);
   }
@@ -35,45 +33,36 @@ export function OnboardingModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="h-5 w-5 text-primary" />
-            <DialogTitle>Complete Your Profile</DialogTitle>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/70">
+              <Sparkles className="h-4.5 w-4.5 text-primary-foreground" />
+            </div>
+            <DialogTitle>Welcome to CutPilot!</DialogTitle>
           </div>
           <DialogDescription>
-            Set up your fitness goals, preferences, and body stats to get
-            personalized workout and meal plans.
+            Let&apos;s personalize your experience. You can set up your profile by chatting with CutPilot AI — just tell it about yourself and it&apos;ll handle everything.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Setup Progress</span>
-              <span className="font-medium">{Math.round(progress)}%</span>
-            </div>
-            <Progress value={progress} className="h-2" />
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
+            <p className="text-sm font-medium">Recommended: Chat with AI</p>
+            <p className="text-xs text-muted-foreground">
+              Tap the <span className="text-primary font-medium">CutPilot AI</span> button (bottom-right) and say &quot;Help me set up my profile&quot;. It&apos;ll ask you questions, save your info, and generate your personalized plans.
+            </p>
           </div>
 
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>Complete these steps:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Set your fitness goals</li>
-              <li>Enter your body stats</li>
-              <li>Choose preferences</li>
-              <li>Add any injuries/limitations</li>
-            </ul>
-          </div>
-
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-1">
             <Button
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
+              onClick={handleTraditional}
+              className="flex-1 text-xs"
             >
-              Later
+              Traditional Setup
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
             </Button>
-            <Button onClick={handleStart} className="flex-1">
-              Start Setup
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button onClick={() => onOpenChange(false)} className="flex-1 text-xs">
+              <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+              I&apos;ll use AI Chat
             </Button>
           </div>
         </div>

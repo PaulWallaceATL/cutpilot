@@ -30,6 +30,7 @@ import {
   Timer,
   TrendingUp,
   AlertTriangle,
+  Sparkles,
 } from "lucide-react";
 
 /* -------------------------------------------------------------------------- */
@@ -344,21 +345,26 @@ export default function ProfilePage() {
       <div className="space-y-6">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6">
           <h1 className="text-2xl font-bold">Profile</h1>
-          <p className="text-sm text-muted-foreground mt-1">Set up your profile to get started</p>
+          <p className="text-sm text-muted-foreground mt-1">Let&apos;s get you set up</p>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
-            <User className="mx-auto h-12 w-12 text-muted-foreground/30" />
-            <h3 className="mt-4 text-lg font-semibold">No Profile Data</h3>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5">
+              <Sparkles className="h-7 w-7 text-primary" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold">Chat to Set Up Your Profile</h3>
             <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-              Complete the onboarding process to set up your fitness profile, goals, and preferences.
+              Tap the CutPilot AI button in the bottom-right corner and tell it about yourself. It&apos;ll save your info, set your goals, and generate personalized plans — all through conversation.
             </p>
-            <a
-              href="/onboarding"
-              className="mt-6 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-2.5 text-sm font-medium hover:shadow-lg transition-all"
-            >
-              Complete Setup
-            </a>
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <p className="text-xs text-muted-foreground">Or set up manually:</p>
+              <a
+                href="/onboarding"
+                className="inline-flex items-center justify-center rounded-xl border border-border bg-background px-6 py-2.5 text-sm font-medium hover:bg-muted transition-all"
+              >
+                Traditional Setup
+              </a>
+            </div>
           </CardContent>
         </Card>
       </div>
