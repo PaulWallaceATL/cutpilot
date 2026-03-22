@@ -23,16 +23,12 @@ export const mealAssistantResponseSchema = z.object({
   suggestions: z.array(z.string()).nullable().optional(),
 });
 
-const profileActionSchema = z.object({
-  type: z.literal("update_profile"),
-  fields: z.object({
+const assistantActionSchema = z.object({
+  action_type: z.enum(["update_profile", "update_preferences", "add_injury", "remove_injury"]).describe("The type of action to perform"),
+  profile_fields: z.object({
     full_name: z.string().nullable().optional(),
-  }).describe("Profile fields to update"),
-});
-
-const preferencesActionSchema = z.object({
-  type: z.literal("update_preferences"),
-  fields: z.object({
+  }).nullable().optional().describe("Only for update_profile actions"),
+  preference_fields: z.object({
     age: z.number().nullable().optional(),
     sex: z.enum(["male", "female", "other"]).nullable().optional(),
     height_cm: z.number().nullable().optional(),
@@ -48,27 +44,11 @@ const preferencesActionSchema = z.object({
     carb_target_g: z.number().nullable().optional(),
     fat_target_g: z.number().nullable().optional(),
     dietary_restrictions: z.array(z.string()).nullable().optional(),
-  }).describe("User preference fields to update"),
+  }).nullable().optional().describe("Only for update_preferences actions"),
+  injury_body_part: z.string().nullable().optional().describe("Body part for add_injury or remove_injury"),
+  injury_severity: z.enum(["mild", "moderate", "severe"]).nullable().optional().describe("Severity for add_injury"),
+  injury_description: z.string().nullable().optional().describe("Description for add_injury"),
 });
-
-const addInjuryActionSchema = z.object({
-  type: z.literal("add_injury"),
-  body_part: z.string(),
-  severity: z.enum(["mild", "moderate", "severe"]),
-  description: z.string().nullable().optional(),
-});
-
-const removeInjuryActionSchema = z.object({
-  type: z.literal("remove_injury"),
-  body_part: z.string().describe("The body part to mark as resolved"),
-});
-
-const assistantActionSchema = z.discriminatedUnion("type", [
-  profileActionSchema,
-  preferencesActionSchema,
-  addInjuryActionSchema,
-  removeInjuryActionSchema,
-]);
 
 export const globalAssistantResponseSchema = z.object({
   message: z.string().describe("The assistant's conversational response to the user"),

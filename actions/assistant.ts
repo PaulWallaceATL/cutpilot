@@ -13,61 +13,71 @@ async function executeActions(
   const log: string[] = [];
 
   for (const action of actions) {
-    switch (action.type) {
-      case "update_profile": {
-        const clean: Record<string, unknown> = {};
-        if (action.fields.full_name !== undefined) clean.full_name = action.fields.full_name;
-        if (Object.keys(clean).length > 0) {
-          const { error } = await supabase.from("profiles").update(clean).eq("id", userId);
-          if (!error) log.push(`Updated profile: ${Object.keys(clean).join(", ")}`);
+    try {
+      switch (action.action_type) {
+        case "update_profile": {
+          if (!action.profile_fields) break;
+          const clean: Record<string, unknown> = {};
+          if (action.profile_fields.full_name !== undefined && action.profile_fields.full_name !== null) {
+            clean.full_name = action.profile_fields.full_name;
+          }
+          if (Object.keys(clean).length > 0) {
+            const { error } = await supabase.from("profiles").update(clean).eq("id", userId);
+            if (!error) log.push(`Updated profile: ${Object.keys(clean).join(", ")}`);
+          }
+          break;
         }
-        break;
-      }
-      case "update_preferences": {
-        const clean: Record<string, unknown> = {};
-        const f = action.fields;
-        if (f.age !== undefined) clean.age = f.age;
-        if (f.sex !== undefined) clean.sex = f.sex;
-        if (f.height_cm !== undefined) clean.height_cm = f.height_cm;
-        if (f.weight_kg !== undefined) clean.weight_kg = f.weight_kg;
-        if (f.target_weight_kg !== undefined) clean.target_weight_kg = f.target_weight_kg;
-        if (f.fitness_goal !== undefined) clean.fitness_goal = f.fitness_goal;
-        if (f.experience_level !== undefined) clean.experience_level = f.experience_level;
-        if (f.activity_level !== undefined) clean.activity_level = f.activity_level;
-        if (f.diet_type !== undefined) clean.diet_type = f.diet_type;
-        if (f.workout_days_per_week !== undefined) clean.workout_days_per_week = f.workout_days_per_week;
-        if (f.calorie_target !== undefined) clean.calorie_target = f.calorie_target;
-        if (f.protein_target_g !== undefined) clean.protein_target_g = f.protein_target_g;
-        if (f.carb_target_g !== undefined) clean.carb_target_g = f.carb_target_g;
-        if (f.fat_target_g !== undefined) clean.fat_target_g = f.fat_target_g;
-        if (f.dietary_restrictions !== undefined) clean.dietary_restrictions = f.dietary_restrictions;
-        if (Object.keys(clean).length > 0) {
-          const { error } = await supabase.from("user_preferences").update(clean).eq("user_id", userId);
-          if (!error) log.push(`Updated preferences: ${Object.keys(clean).join(", ")}`);
+        case "update_preferences": {
+          if (!action.preference_fields) break;
+          const clean: Record<string, unknown> = {};
+          const f = action.preference_fields;
+          if (f.age != null) clean.age = f.age;
+          if (f.sex != null) clean.sex = f.sex;
+          if (f.height_cm != null) clean.height_cm = f.height_cm;
+          if (f.weight_kg != null) clean.weight_kg = f.weight_kg;
+          if (f.target_weight_kg != null) clean.target_weight_kg = f.target_weight_kg;
+          if (f.fitness_goal != null) clean.fitness_goal = f.fitness_goal;
+          if (f.experience_level != null) clean.experience_level = f.experience_level;
+          if (f.activity_level != null) clean.activity_level = f.activity_level;
+          if (f.diet_type != null) clean.diet_type = f.diet_type;
+          if (f.workout_days_per_week != null) clean.workout_days_per_week = f.workout_days_per_week;
+          if (f.calorie_target != null) clean.calorie_target = f.calorie_target;
+          if (f.protein_target_g != null) clean.protein_target_g = f.protein_target_g;
+          if (f.carb_target_g != null) clean.carb_target_g = f.carb_target_g;
+          if (f.fat_target_g != null) clean.fat_target_g = f.fat_target_g;
+          if (f.dietary_restrictions != null) clean.dietary_restrictions = f.dietary_restrictions;
+          if (Object.keys(clean).length > 0) {
+            const { error } = await supabase.from("user_preferences").update(clean).eq("user_id", userId);
+            if (!error) log.push(`Updated preferences: ${Object.keys(clean).join(", ")}`);
+          }
+          break;
         }
-        break;
+        case "add_injury": {
+          if (!action.injury_body_part || !action.injury_severity) break;
+          const { error } = await supabase.from("injuries").insert({
+            user_id: userId,
+            body_part: action.injury_body_part,
+            severity: action.injury_severity,
+            description: action.injury_description ?? null,
+            is_active: true,
+          });
+          if (!error) log.push(`Added injury: ${action.injury_body_part} (${action.injury_severity})`);
+          break;
+        }
+        case "remove_injury": {
+          if (!action.injury_body_part) break;
+          const { error } = await supabase
+            .from("injuries")
+            .update({ is_active: false })
+            .eq("user_id", userId)
+            .ilike("body_part", `%${action.injury_body_part}%`)
+            .eq("is_active", true);
+          if (!error) log.push(`Resolved injury: ${action.injury_body_part}`);
+          break;
+        }
       }
-      case "add_injury": {
-        const { error } = await supabase.from("injuries").insert({
-          user_id: userId,
-          body_part: action.body_part,
-          severity: action.severity,
-          description: action.description ?? null,
-          is_active: true,
-        });
-        if (!error) log.push(`Added injury: ${action.body_part} (${action.severity})`);
-        break;
-      }
-      case "remove_injury": {
-        const { error } = await supabase
-          .from("injuries")
-          .update({ is_active: false })
-          .eq("user_id", userId)
-          .ilike("body_part", `%${action.body_part}%`)
-          .eq("is_active", true);
-        if (!error) log.push(`Resolved injury: ${action.body_part}`);
-        break;
-      }
+    } catch {
+      // Skip failed actions silently
     }
   }
 

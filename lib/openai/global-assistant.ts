@@ -91,11 +91,12 @@ You can update the user's profile and preferences by including actions in your r
 - The user mentions a new injury → add it
 - The user says an injury healed → remove it
 
-Action types you can use:
-- "update_profile": Update name (fields: { full_name })
-- "update_preferences": Update any preference field (age, sex, height_cm, weight_kg, target_weight_kg, fitness_goal, experience_level, activity_level, diet_type, workout_days_per_week, calorie_target, protein_target_g, carb_target_g, fat_target_g, dietary_restrictions)
-- "add_injury": Add a new injury (body_part, severity: mild/moderate/severe, description)
-- "remove_injury": Mark an injury as resolved (body_part)
+Each action is an object with action_type plus the relevant fields:
+- action_type "update_profile": set profile_fields (e.g. { full_name: "Paul" })
+- action_type "update_preferences": set preference_fields (e.g. { age: 28, weight_kg: 82 })
+  Available preference fields: age, sex, height_cm, weight_kg, target_weight_kg, fitness_goal (lose_fat/build_muscle/maintain/recomp/improve_health), experience_level (beginner/intermediate/advanced), activity_level (sedentary/light/moderate/active/very_active), diet_type (flexible/keto/paleo/vegan/vegetarian/mediterranean), workout_days_per_week, calorie_target, protein_target_g, carb_target_g, fat_target_g, dietary_restrictions
+- action_type "add_injury": set injury_body_part, injury_severity (mild/moderate/severe), and optionally injury_description
+- action_type "remove_injury": set injury_body_part to mark it as resolved
 
 IMPORTANT: When you save data, confirm it naturally in your message (e.g. "Got it, I've saved your weight as 82kg!"). Only include actions for data the user explicitly provides — never assume or make up values.
 
