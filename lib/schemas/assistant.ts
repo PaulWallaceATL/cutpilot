@@ -24,7 +24,7 @@ export const mealAssistantResponseSchema = z.object({
 });
 
 const assistantActionSchema = z.object({
-  action_type: z.enum(["update_profile", "update_preferences", "add_injury", "remove_injury"]).describe("The type of action to perform"),
+  action_type: z.enum(["update_profile", "update_preferences", "add_injury", "remove_injury", "generate_plans"]).describe("The type of action to perform"),
   profile_fields: z.object({
     full_name: z.string().nullable().optional(),
   }).nullable().optional().describe("Only for update_profile actions"),

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { globalAssistant, type UserContext } from "@/lib/openai/global-assistant";
+import { regenerateWorkout, regenerateMeal } from "@/actions/plan";
 import type { AssistantAction } from "@/lib/schemas/assistant";
 
 async function executeActions(
@@ -47,9 +48,21 @@ async function executeActions(
           if (f.fat_target_g != null) clean.fat_target_g = f.fat_target_g;
           if (f.dietary_restrictions != null) clean.dietary_restrictions = f.dietary_restrictions;
           if (Object.keys(clean).length > 0) {
-            const { error } = await supabase.from("user_preferences").update(clean).eq("user_id", userId);
-            if (!error) log.push(`Updated preferences: ${Object.keys(clean).join(", ")}`);
+            const { error } = await supabase
+              .from("user_preferences")
+              .upsert({ user_id: userId, ...clean }, { onConflict: "user_id" });
+            if (!error) {
+              log.push(`Saved preferences: ${Object.keys(clean).join(", ")}`);
+              await supabase.from("profiles").update({ onboarding_completed: true }).eq("id", userId);
+            }
           }
+          break;
+        }
+        case "generate_plans": {
+          const wpResult = await regenerateWorkout();
+          if (wpResult?.success) log.push("Generated new workout plan");
+          const mpResult = await regenerateMeal();
+          if (mpResult?.success) log.push("Generated new meal plan");
           break;
         }
         case "add_injury": {
@@ -95,12 +108,14 @@ async function executeActions(
 async function loadUserContext(userId: string): Promise<UserContext> {
   const supabase = await createClient();
 
-  const [{ data: profile }, { data: prefs }, { data: injuries }, { data: logs }] =
+  const [{ data: profile }, { data: prefs }, { data: injuries }, { data: logs }, { count: wpCount }, { count: mpCount }] =
     await Promise.all([
       supabase.from("profiles").select("full_name, email, onboarding_completed").eq("id", userId).single(),
       supabase.from("user_preferences").select("*").eq("user_id", userId).single(),
       supabase.from("injuries").select("body_part, severity").eq("user_id", userId).eq("is_active", true),
       supabase.from("workout_logs").select("date").eq("user_id", userId).eq("completed", true).order("date", { ascending: false }).limit(60),
+      supabase.from("workout_plans").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
+      supabase.from("meal_plans").select("*", { count: "exact", head: true }).eq("user_id", userId).eq("is_active", true),
     ]);
 
   let streak = 0;
@@ -137,6 +152,8 @@ async function loadUserContext(userId: string): Promise<UserContext> {
     injuries: (injuries ?? []).map((i) => ({ body_part: i.body_part, severity: i.severity })),
     workoutsCompleted: logs?.length ?? 0,
     currentStreak: streak,
+    hasWorkoutPlan: (wpCount ?? 0) > 0,
+    hasMealPlan: (mpCount ?? 0) > 0,
   };
 }
 

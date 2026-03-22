@@ -25,6 +25,8 @@ export interface UserContext {
   injuries: Array<{ body_part: string; severity: string }>;
   workoutsCompleted: number;
   currentStreak: number;
+  hasWorkoutPlan: boolean;
+  hasMealPlan: boolean;
 }
 
 function buildProfileSummary(ctx: UserContext): string {
@@ -50,6 +52,8 @@ function buildProfileSummary(ctx: UserContext): string {
   lines.push(`Fat: ${ctx.fatTarget ? `${ctx.fatTarget}g` : "NOT SET"}`);
   lines.push(`Dietary restrictions: ${ctx.dietaryRestrictions.length > 0 ? ctx.dietaryRestrictions.join(", ") : "None"}`);
   lines.push(`Active injuries: ${ctx.injuries.length > 0 ? ctx.injuries.map(i => `${i.body_part} (${i.severity})`).join(", ") : "None"}`);
+  lines.push(`Has workout plan: ${ctx.hasWorkoutPlan ? "Yes" : "NO — needs one!"}`);
+  lines.push(`Has meal plan: ${ctx.hasMealPlan ? "Yes" : "NO — needs one!"}`);
   lines.push(`Total workouts completed: ${ctx.workoutsCompleted}`);
   lines.push(`Current streak: ${ctx.currentStreak} days`);
 
@@ -97,6 +101,7 @@ Each action is an object with action_type plus the relevant fields:
   Available preference fields: age, sex, height_cm, weight_kg, target_weight_kg, fitness_goal (lose_fat/build_muscle/maintain/recomp/improve_health), experience_level (beginner/intermediate/advanced), activity_level (sedentary/light/moderate/active/very_active), diet_type (flexible/keto/paleo/vegan/vegetarian/mediterranean), workout_days_per_week, calorie_target, protein_target_g, carb_target_g, fat_target_g, dietary_restrictions
 - action_type "add_injury": set injury_body_part, injury_severity (mild/moderate/severe), and optionally injury_description
 - action_type "remove_injury": set injury_body_part to mark it as resolved
+- action_type "generate_plans": Generate personalized workout AND meal plans based on the user's current profile. Use this when: (1) the user has provided enough info (at minimum: fitness_goal, experience_level, and workout_days_per_week), AND (2) they don't have plans yet or ask for new ones. No extra fields needed — it reads from the saved profile.
 
 IMPORTANT: When you save data, confirm it naturally in your message (e.g. "Got it, I've saved your weight as 82kg!"). Only include actions for data the user explicitly provides — never assume or make up values.
 
