@@ -4,10 +4,11 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toggleChecklistItem, addChecklistItem } from "@/actions/checklist";
+import { toggleChecklistItem, addChecklistItem, deleteChecklistItem } from "@/actions/checklist";
 import {
   CheckCircle2,
   Plus,
+  Trash2,
   Dumbbell,
   UtensilsCrossed,
   Droplets,
@@ -69,6 +70,11 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
       prev.map((i) => (i.id === itemId ? { ...i, completed: checked } : i))
     );
     await toggleChecklistItem(itemId, checked);
+  }
+
+  async function handleDelete(itemId: string) {
+    setItems((prev) => prev.filter((i) => i.id !== itemId));
+    await deleteChecklistItem(itemId);
   }
 
   async function handleAdd() {
@@ -175,9 +181,21 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
               >
                 {item.title}
               </span>
-              {item.completed && (
-                <CheckCircle2 className="ml-auto h-4 w-4 text-green-500 transition-all duration-300 animate-in fade-in zoom-in-50" />
-              )}
+              <div className="ml-auto flex items-center gap-1 shrink-0">
+                {item.completed && (
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                )}
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDelete(item.id);
+                  }}
+                  className="h-6 w-6 flex items-center justify-center rounded-md text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive hover:bg-destructive/10 transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </label>
           );
         })}

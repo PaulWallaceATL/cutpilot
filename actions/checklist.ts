@@ -178,6 +178,25 @@ export async function addChecklistItem(title: string, itemType: string = "custom
   return { success: true };
 }
 
+export async function deleteChecklistItem(itemId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not authenticated" };
+
+  const { error } = await supabase
+    .from("checklist_items")
+    .delete()
+    .eq("id", itemId)
+    .eq("user_id", user.id);
+
+  if (error) return { error: "Failed to delete item" };
+
+  revalidatePath("/app/today");
+  return { success: true };
+}
+
 export async function toggleChecklistItem(
   itemId: string,
   completed: boolean
