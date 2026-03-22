@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Send,
   Bot,
@@ -43,13 +42,11 @@ export function GlobalAiAssistant() {
   const [sending, setSending] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const endRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
-      if (scrollRef.current) {
-        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }
+      endRef.current?.scrollIntoView({ behavior: "smooth" });
     });
   }, []);
 
@@ -72,7 +69,7 @@ export function GlobalAiAssistant() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, scrollToBottom]);
+  }, [messages, sending, scrollToBottom]);
 
   async function handleSend(content?: string) {
     const msg = (content || input).trim();
@@ -198,7 +195,7 @@ export function GlobalAiAssistant() {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 px-4 py-3" ref={scrollRef}>
+        <div className="flex-1 overflow-y-auto px-4 py-3">
           <div className="space-y-4">
             {!loaded && (
               <div className="flex items-center justify-center py-8">
@@ -315,8 +312,9 @@ export function GlobalAiAssistant() {
                 ))}
               </div>
             )}
+            <div ref={endRef} />
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Input */}
         <div className="border-t border-border/50 bg-background/50 p-3">
