@@ -43,7 +43,7 @@ const cards = [
       "Chat with AI anytime",
     ],
     image:
-      "https://images.unsplash.com/photo-1534438327276-14e5300c3a68?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?q=80&w=1200&auto=format&fit=crop",
   },
 ];
 
@@ -91,17 +91,19 @@ export function HowItWorksSection() {
               <motion.div
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${card.image})` }}
-                initial={{ opacity: 0, scale: 1.1 }}
+                initial={false}
                 animate={{
-                  opacity: hoveredCard === card.number ? 1 : 0,
-                  scale: hoveredCard === card.number ? 1 : 1.1,
+                  opacity: hoveredCard === card.number ? 1 : 0.42,
+                  scale: hoveredCard === card.number ? 1 : 1.04,
                 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
               />
               <motion.div
-                className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/50 to-black/30"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: hoveredCard === card.number ? 0.85 : 0 }}
+                className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-black/10"
+                initial={false}
+                animate={{
+                  opacity: hoveredCard === card.number ? 0.82 : 0,
+                }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               />
 

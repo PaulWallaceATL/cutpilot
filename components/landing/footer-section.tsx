@@ -123,13 +123,13 @@ export function FooterSection() {
             })}
           </div>
 
-          {/* Large wordmark */}
+          {/* Large wordmark — brand green band */}
           <motion.div
             variants={itemVariants}
-            className="relative flex items-center justify-center overflow-hidden py-8 sm:py-12 md:py-16"
+            className="relative -mx-4 flex items-center justify-center overflow-hidden rounded-2xl bg-primary py-8 sm:-mx-6 sm:py-12 md:py-16 lg:-mx-8"
           >
-            <div className="w-full px-4 select-none" aria-hidden="true">
-              <p className="text-[clamp(3rem,12vw,10rem)] font-bold tracking-tighter text-center leading-none text-muted/40">
+            <div className="w-full px-4 select-none sm:px-6 lg:px-8" aria-hidden="true">
+              <p className="text-[clamp(3rem,12vw,10rem)] font-bold tracking-tighter text-center leading-none text-primary-foreground/30">
                 CUTPILOT
               </p>
             </div>
