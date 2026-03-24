@@ -113,8 +113,8 @@ export function CtaSection() {
         aria-hidden
       />
 
-      <div className="relative z-[40] flex min-h-screen flex-col items-center justify-center px-4 pb-28 pt-20 sm:px-6 sm:pb-24 lg:px-8">
-        <div className="max-w-2xl rounded-3xl border border-border/40 bg-background/75 px-6 py-10 shadow-sm backdrop-blur-md sm:px-12 sm:py-12">
+      <div className="relative z-[40] flex min-h-screen flex-col items-center justify-center px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mx-auto w-full max-w-2xl rounded-3xl border border-border/40 bg-background/75 px-6 py-10 text-center shadow-sm backdrop-blur-md sm:px-12 sm:py-12">
         <motion.h2
           className="mb-4 text-center text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
           initial={{ opacity: 0, y: 20 }}
@@ -125,7 +125,7 @@ export function CtaSection() {
           Ready to transform?
         </motion.h2>
         <motion.p
-          className="mb-10 max-w-xl text-center text-lg text-muted-foreground sm:mb-12"
+          className="mx-auto mb-10 max-w-xl text-lg text-muted-foreground sm:mb-12"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -136,7 +136,7 @@ export function CtaSection() {
         </motion.p>
 
         <motion.div
-          className="flex flex-col items-center gap-4 sm:flex-row sm:gap-5"
+          className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-5"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -158,7 +158,7 @@ export function CtaSection() {
         </motion.div>
 
         <motion.p
-          className="mt-8 text-center text-xs text-muted-foreground/80"
+          className="mt-8 text-xs text-muted-foreground/80"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -166,61 +166,12 @@ export function CtaSection() {
         >
           Free to start · No credit card required
         </motion.p>
+        <p className="mt-4 text-xs uppercase tracking-wider text-muted-foreground/70">
+          Train smarter with AI
+        </p>
         </div>
       </div>
 
-      <motion.div
-        className="absolute bottom-24 left-6 z-[40] sm:bottom-10 sm:left-8"
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.55, delay: 0.5 }}
-      >
-        <p className="text-xs uppercase tracking-wider text-muted-foreground sm:text-sm">
-          Train smarter with AI
-        </p>
-      </motion.div>
-
-      <motion.div
-        className="absolute bottom-4 left-1/2 z-[40] flex w-[92%] max-w-3xl -translate-x-1/2 items-center justify-between gap-3 rounded-xl border border-border bg-card/95 py-2 pl-4 pr-2 shadow-lg backdrop-blur-sm sm:bottom-8 sm:w-auto sm:justify-center sm:gap-8 sm:px-4 md:gap-24"
-        initial={{ opacity: 0, y: 28 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.55, ease: "easeOut" }}
-      >
-        <Link
-          href="/login"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:hidden"
-        >
-          Sign in
-        </Link>
-
-        <span className="hidden text-base font-semibold text-foreground sm:inline sm:text-lg">
-          CutPilot
-        </span>
-
-        <div className="hidden items-center gap-3 sm:flex sm:gap-4">
-          <Link
-            href="/login"
-            className="whitespace-nowrap text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:text-base"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className="whitespace-nowrap rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-6 sm:text-base"
-          >
-            Get started
-          </Link>
-        </div>
-
-        <Link
-          href="/signup"
-          className="rounded-md bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:hidden"
-        >
-          Get started
-        </Link>
-      </motion.div>
     </section>
   );
 }
