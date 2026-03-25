@@ -1,5 +1,6 @@
-import { resolveWorkoutApiMediaForName } from "@/lib/workout-api/resolve-media";
+import { sanitizeExerciseImageUrlForStorage } from "@/lib/workout/exercise-illustration-display";
 import { getCachedWorkoutApiCatalog } from "@/lib/workout-api/catalog";
+import { resolveWorkoutApiMediaForName } from "@/lib/workout-api/resolve-media";
 import type { WorkoutExercise } from "@/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -25,13 +26,16 @@ export async function enrichMissingExerciseImages(
     if (ex.exercise_image_url?.trim()) continue;
 
     const resolved = await resolveWorkoutApiMediaForName(ex.name, catalog);
-    if (!resolved?.imageUrl?.trim()) continue;
+    if (!resolved) continue;
+
+    const publicUrl = sanitizeExerciseImageUrlForStorage(resolved.imageUrl);
+    if (!resolved.id) continue;
 
     const { error } = await supabase
       .from("workout_exercises")
       .update({
         workout_api_exercise_id: resolved.id,
-        exercise_image_url: resolved.imageUrl,
+        exercise_image_url: publicUrl,
       })
       .eq("id", ex.id)
       .eq("user_id", userId);
@@ -46,7 +50,7 @@ export async function enrichMissingExerciseImages(
     next[i] = {
       ...ex,
       workout_api_exercise_id: resolved.id,
-      exercise_image_url: resolved.imageUrl,
+      exercise_image_url: publicUrl,
     };
   }
 

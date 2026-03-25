@@ -1,4 +1,5 @@
 import type { AIWorkoutExercise } from "@/lib/schemas/workout";
+import { sanitizeExerciseImageUrlForStorage } from "@/lib/workout/exercise-illustration-display";
 import { getCachedWorkoutApiCatalog } from "@/lib/workout-api/catalog";
 import { resolveWorkoutApiMediaForName } from "@/lib/workout-api/resolve-media";
 
@@ -36,7 +37,9 @@ export async function buildWorkoutExerciseInsertRows(
         const resolved = await resolveWorkoutApiMediaForName(ex.name, catalog);
         if (resolved) {
           workout_api_exercise_id = resolved.id;
-          exercise_image_url = resolved.imageUrl?.trim() || null;
+          exercise_image_url = sanitizeExerciseImageUrlForStorage(
+            resolved.imageUrl
+          );
         }
       }
 

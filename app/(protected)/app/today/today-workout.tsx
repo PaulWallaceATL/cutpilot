@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dumbbell, ArrowRight } from "lucide-react";
 import type { WorkoutExercise } from "@/types/database";
 import { enrichMissingExerciseImages } from "@/lib/workout/enrich-existing-exercises";
+import { getExerciseIllustrationDisplay } from "@/lib/workout/exercise-illustration-display";
 
 export async function TodayWorkout({ userId }: { userId: string }) {
   const supabase = await createClient();
@@ -83,19 +84,22 @@ export async function TodayWorkout({ userId }: { userId: string }) {
           {exercises.length} exercises
         </p>
         <div className="mt-3 space-y-1.5">
-          {sortedPreview.slice(0, 3).map((ex) => (
+          {sortedPreview.slice(0, 3).map((ex) => {
+            const thumb = getExerciseIllustrationDisplay(ex);
+            return (
             <div
               key={ex.id}
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
-              {ex.exercise_image_url ? (
+              {thumb ? (
                 <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-muted/40">
                   <Image
-                    src={ex.exercise_image_url}
+                    src={thumb.src}
                     alt={`${ex.name} illustration`}
                     fill
                     className="object-contain p-0.5"
                     sizes="36px"
+                    unoptimized={thumb.unoptimized}
                   />
                 </span>
               ) : (
@@ -106,7 +110,8 @@ export async function TodayWorkout({ userId }: { userId: string }) {
                 {ex.sets}x{ex.reps}
               </span>
             </div>
-          ))}
+          );
+          })}
           {exercises.length > 3 && (
             <div className="px-3 text-xs text-muted-foreground">
               +{exercises.length - 3} more

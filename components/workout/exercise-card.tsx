@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SetLogger } from "./set-logger";
 import type { WorkoutExercise } from "@/types/database";
+import { getExerciseIllustrationDisplay } from "@/lib/workout/exercise-illustration-display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ExerciseCardProps {
@@ -22,26 +23,27 @@ export function ExerciseCard({
   workoutLogId,
   existingSets,
 }: ExerciseCardProps) {
-  const imageUrl = exercise.exercise_image_url?.trim() || null;
+  const illustration = getExerciseIllustrationDisplay(exercise);
 
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       <div className="grid gap-0 md:grid-cols-[minmax(0,240px)_1fr] md:gap-0">
         <div
           className={
-            imageUrl
+            illustration
               ? "relative aspect-[4/3] w-full border-b border-border/60 bg-gradient-to-b from-muted/50 to-muted/20 md:aspect-auto md:min-h-[220px] md:border-b-0 md:border-r"
               : "relative flex min-h-[100px] w-full items-center justify-center border-b border-border/60 bg-muted/25 md:min-h-[200px] md:border-b-0 md:border-r"
           }
         >
-          {imageUrl ? (
+          {illustration ? (
             <Image
-              src={imageUrl}
+              src={illustration.src}
               alt={`Illustration: ${exercise.name}`}
               fill
               className="object-contain p-3 md:p-4"
               sizes="(max-width: 768px) 100vw, 240px"
               priority={false}
+              unoptimized={illustration.unoptimized}
             />
           ) : (
             <span className="px-4 text-center text-xs text-muted-foreground">
