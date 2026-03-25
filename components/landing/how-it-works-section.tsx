@@ -55,13 +55,13 @@ export function HowItWorksSection() {
       className="w-full py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-muted/20"
       aria-label="How it works"
     >
-      <div className="max-w-[1400px] mx-auto w-full">
+      <div className="mx-auto w-full max-w-6xl">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-3"
+          className="text-page-title mb-3 text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl"
         >
           How it works
         </motion.h2>
@@ -83,7 +83,7 @@ export function HowItWorksSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="relative overflow-hidden rounded-2xl bg-card border border-border/50 min-h-[400px] sm:min-h-[450px] lg:min-h-[500px] flex flex-col cursor-pointer"
+              className="relative flex min-h-[400px] cursor-pointer flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-soft sm:min-h-[450px] lg:min-h-[500px]"
               onMouseEnter={() => setHoveredCard(card.number)}
               onMouseLeave={() => setHoveredCard(null)}
               aria-label={`Step ${card.number}: ${card.title}`}

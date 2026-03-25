@@ -29,8 +29,8 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="w-full py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-background">
-      <div className="max-w-[1400px] mx-auto w-full">
+    <section className="w-full bg-background px-4 py-16 sm:px-6 md:py-24 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 items-center">
           {/* Left Column */}
           <div className="flex flex-col lg:justify-between lg:min-h-[400px]">
@@ -39,7 +39,7 @@ export function StatsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-tight"
+              className="text-page-title text-4xl leading-tight sm:text-5xl md:text-6xl"
             >
               Built for{" "}
               <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">

@@ -20,12 +20,14 @@ export async function TodayWorkout({ userId }: { userId: string }) {
 
   if (!plan) {
     return (
-      <Card className="overflow-hidden">
+      <Card variant="glass" className="overflow-hidden">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-muted p-3">
-            <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
+          <div className="rounded-2xl bg-muted/60 p-4 ring-1 ring-border/40">
+            <Dumbbell className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">No workout plan yet</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            No workout plan yet
+          </p>
         </CardContent>
       </Card>
     );
@@ -42,12 +44,12 @@ export async function TodayWorkout({ userId }: { userId: string }) {
 
   if (!workoutDay) {
     return (
-      <Card className="overflow-hidden">
+      <Card variant="glass" className="overflow-hidden">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-muted p-3">
-            <Dumbbell className="h-8 w-8 text-muted-foreground/50" />
+          <div className="rounded-2xl bg-muted/60 p-4 ring-1 ring-border/40">
+            <Dumbbell className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">Rest day today</p>
+          <p className="mt-4 text-sm text-muted-foreground">Rest day today</p>
         </CardContent>
       </Card>
     );
@@ -64,14 +66,17 @@ export async function TodayWorkout({ userId }: { userId: string }) {
   );
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary/8 to-transparent pb-3">
+    <Card
+      variant="elevated"
+      className="overflow-hidden transition-[box-shadow,transform] duration-200 hover:-translate-y-px"
+    >
+      <CardHeader className="border-b border-border/40 bg-gradient-to-r from-primary/[0.07] to-transparent pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <div className="rounded-lg bg-primary/10 p-1.5">
+          <CardTitle className="text-section-title flex items-center gap-2 text-base">
+            <div className="rounded-xl bg-primary/12 p-1.5 ring-1 ring-primary/15">
               <Dumbbell className="h-4 w-4 text-primary" />
             </div>
-            Today&apos;s Workout
+            Today&apos;s workout
           </CardTitle>
           <Badge variant="secondary" className="font-medium">
             {workoutDay.focus}
@@ -79,7 +84,7 @@ export async function TodayWorkout({ userId }: { userId: string }) {
         </div>
       </CardHeader>
       <CardContent className="pt-4">
-        <h3 className="font-semibold">{workoutDay.name}</h3>
+        <h3 className="font-semibold tracking-tight">{workoutDay.name}</h3>
         <p className="mt-1 text-sm text-muted-foreground">
           {exercises.length} exercises
         </p>
@@ -89,7 +94,7 @@ export async function TodayWorkout({ userId }: { userId: string }) {
             return (
             <div
               key={ex.id}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+              className="flex items-center gap-2 rounded-xl border border-transparent px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-border/50 hover:bg-muted/40 hover:text-foreground"
             >
               {thumb ? (
                 <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-muted/40">
@@ -120,9 +125,9 @@ export async function TodayWorkout({ userId }: { userId: string }) {
         </div>
         <Link
           href={`/app/workouts/${workoutDay.id}`}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-[box-shadow,filter] hover:shadow-elevated hover:brightness-[1.03]"
         >
-          Start Workout
+          Start workout
           <ArrowRight className="h-4 w-4" />
         </Link>
       </CardContent>

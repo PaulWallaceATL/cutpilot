@@ -10,17 +10,29 @@ interface StatCardProps {
   className?: string;
 }
 
-export function StatCard({ icon: Icon, label, value, subtitle, className }: StatCardProps) {
+export function StatCard({
+  icon: Icon,
+  label,
+  value,
+  subtitle,
+  className,
+}: StatCardProps) {
   return (
-    <Card className={cn("transition-all duration-300 hover:scale-[1.02] hover:shadow-lg", className)}>
+    <Card
+      variant="glass"
+      className={cn(
+        "transition-[box-shadow,transform,border-color] duration-200 ease-out hover:-translate-y-px hover:border-primary/15 hover:shadow-glass",
+        className
+      )}
+    >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
-          <div className="rounded-lg bg-primary/10 p-2 transition-transform hover:scale-110">
+          <div className="rounded-xl bg-primary/10 p-2 ring-1 ring-primary/10">
             <Icon className="h-4 w-4 text-primary" />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-lg font-bold">{value}</p>
+            <p className="text-stat-value text-xl tracking-tight">{value}</p>
             {subtitle && (
               <p className="text-xs text-muted-foreground">{subtitle}</p>
             )}

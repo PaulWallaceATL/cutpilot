@@ -60,6 +60,7 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [adding, setAdding] = useState(false);
+  const [justCompletedId, setJustCompletedId] = useState<string | null>(null);
 
   const completed = items.filter((i) => i.completed).length;
   const total = items.length;
@@ -69,6 +70,10 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
     setItems((prev) =>
       prev.map((i) => (i.id === itemId ? { ...i, completed: checked } : i))
     );
+    if (checked) {
+      setJustCompletedId(itemId);
+      window.setTimeout(() => setJustCompletedId((id) => (id === itemId ? null : id)), 450);
+    }
     await toggleChecklistItem(itemId, checked);
   }
 
@@ -99,10 +104,15 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <CardHeader className="pb-4">
+    <Card
+      variant="glass"
+      className="overflow-hidden transition-[box-shadow,transform] duration-200 hover:-translate-y-px hover:shadow-glass"
+    >
+      <CardHeader className="border-b border-border/40 pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base font-semibold">Daily Checklist</CardTitle>
+          <CardTitle className="text-section-title text-base">
+            Daily checklist
+          </CardTitle>
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium tabular-nums text-muted-foreground">
               {completed}/{total}
@@ -117,17 +127,11 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
             </Button>
           </div>
         </div>
-        <div className="relative mt-2 h-2.5 w-full overflow-hidden rounded-full bg-muted">
+        <div className="relative mt-3 h-2 w-full overflow-hidden rounded-full bg-muted/80 ring-1 ring-border/30">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-700 ease-out"
+            className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70 transition-[width] duration-500 ease-out"
             style={{ width: `${pct}%` }}
           />
-          {pct > 0 && pct < 100 && (
-            <div
-              className="absolute top-0 h-full w-4 animate-pulse rounded-full bg-white/30 blur-sm"
-              style={{ left: `calc(${pct}% - 8px)` }}
-            />
-          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-1.5 pb-5">
@@ -158,9 +162,10 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
             <label
               key={item.id}
               className={cn(
-                "group flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all duration-300",
-                "hover:bg-muted/50 hover:shadow-sm hover:border-primary/20",
-                item.completed && "bg-green-500/5 border-green-500/20"
+                "group flex cursor-pointer items-center gap-3 rounded-xl border border-border/50 bg-background/40 p-3.5 transition-[background-color,box-shadow,border-color] duration-200",
+                "hover:border-primary/20 hover:bg-muted/35 hover:shadow-soft",
+                item.completed && "border-primary/25 bg-primary/[0.06]",
+                justCompletedId === item.id && "animate-check-pop"
               )}
             >
               <Checkbox
@@ -168,7 +173,7 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
                 onCheckedChange={(checked) =>
                   handleToggle(item.id, checked === true)
                 }
-                className="transition-transform duration-200 group-hover:scale-110"
+                className="transition-transform duration-150 data-[state=checked]:scale-100 group-hover:scale-[1.02]"
               />
               <Icon className={cn("h-4 w-4 shrink-0", iconColor)} />
               <span
@@ -183,7 +188,7 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
               </span>
               <div className="ml-auto flex items-center gap-1 shrink-0">
                 {item.completed && (
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
                 )}
                 <button
                   onClick={(e) => {
@@ -200,9 +205,11 @@ export function ChecklistCard({ checklist }: ChecklistCardProps) {
           );
         })}
         {items.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No tasks yet. Add items or chat with CutPilot AI to build your day.
-          </p>
+          <div className="rounded-xl border border-dashed border-border/60 bg-muted/20 px-4 py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              No tasks yet. Add items or ask your coach to build your day.
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>

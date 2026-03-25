@@ -5,6 +5,13 @@ import { AiChat } from "@/components/shared/ai-chat";
 import { askWorkoutAssistant } from "@/actions/workouts";
 import type { AiMessage } from "@/types/database";
 
+const WORKOUT_COACH_PROMPTS = [
+  "What order should I do these exercises?",
+  "Suggest a weight for my next set",
+  "Is this enough volume for my goal?",
+  "How long should I rest between sets?",
+];
+
 interface WorkoutChatProps {
   workoutDayId: string;
   initialMessages: AiMessage[];
@@ -44,7 +51,12 @@ export function WorkoutChat({ workoutDayId, initialMessages }: WorkoutChatProps)
     <AiChat
       messages={messages}
       onSend={handleSend}
-      placeholder="Ask about this workout..."
+      title="Workout coach"
+      subtitle="This session"
+      placeholder="Ask about this workout…"
+      emptyTitle="Session coach"
+      emptyDescription="Ask about form, load, rest, or exercise order — tailored to this workout."
+      suggestedPrompts={WORKOUT_COACH_PROMPTS}
       className="h-[400px]"
     />
   );

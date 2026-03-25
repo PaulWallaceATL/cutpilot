@@ -8,7 +8,10 @@ interface MealCardProps {
 
 export function MealCard({ meal }: MealCardProps) {
   return (
-    <Card className="transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+    <Card
+      variant="elevated"
+      className="transition-[box-shadow,transform] duration-200 hover:-translate-y-px"
+    >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base">{meal.name}</CardTitle>
@@ -30,7 +33,7 @@ export function MealCard({ meal }: MealCardProps) {
             <p className="text-xs text-muted-foreground">Protein</p>
             <p className="text-sm font-bold">{meal.protein_g}g</p>
           </div>
-          <div className="rounded-lg bg-green-500/10 p-2">
+          <div className="rounded-lg bg-primary/10 p-2">
             <p className="text-xs text-muted-foreground">Carbs</p>
             <p className="text-sm font-bold">{meal.carbs_g}g</p>
           </div>

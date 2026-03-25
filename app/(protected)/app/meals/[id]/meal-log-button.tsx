@@ -30,21 +30,28 @@ export function MealLogButton({ mealId, isLogged }: MealLogButtonProps) {
 
   if (logged) {
     return (
-      <Button disabled className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 opacity-60">
-        <Check className="mr-2 h-4 w-4 text-green-500" />
-        Logged Today
+      <Button
+        disabled
+        className="w-full bg-primary/85 text-primary-foreground opacity-90 shadow-soft"
+      >
+        <Check className="mr-2 h-4 w-4" />
+        Logged today
       </Button>
     );
   }
 
   return (
-    <Button onClick={handleLog} disabled={loading} className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg transition-all">
+    <Button
+      onClick={handleLog}
+      disabled={loading}
+      className="w-full bg-primary text-primary-foreground shadow-soft transition-[box-shadow] hover:shadow-elevated"
+    >
       {loading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
         <UtensilsCrossed className="mr-2 h-4 w-4" />
       )}
-      Log This Meal
+      Log this meal
     </Button>
   );
 }

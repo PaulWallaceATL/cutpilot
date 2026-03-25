@@ -65,8 +65,8 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section className="w-full py-16 md:py-24 px-4 md:px-8 lg:px-8 bg-background border-y border-border/30">
-      <div className="max-w-[1400px] mx-auto">
+    <section className="w-full border-y border-border/30 bg-background px-4 py-16 md:px-8 md:py-24 lg:px-8">
+      <div className="mx-auto max-w-6xl">
         <div className="mb-12 md:mb-16 lg:mb-20">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -83,7 +83,7 @@ export function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6"
+            className="text-page-title mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl"
           >
             Everything you need to{" "}
             <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -116,7 +116,7 @@ export function FeaturesSection() {
                 className="flex flex-col"
               >
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-border/60 bg-card shadow-sm">
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border/50 bg-card/90 shadow-soft backdrop-blur-sm sm:h-12 sm:w-12">
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
                   <h3 className="text-base tracking-tight font-semibold text-foreground">

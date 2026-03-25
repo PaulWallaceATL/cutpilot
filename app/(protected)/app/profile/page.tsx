@@ -32,6 +32,14 @@ import {
   AlertTriangle,
   Sparkles,
 } from "lucide-react";
+import {
+  cmToFeetInches,
+  formatHeightImperial,
+  formatWeightLb,
+  kgToLb,
+  lbToKg,
+  parseFeetInchesToCm,
+} from "@/lib/units/imperial";
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                     */
@@ -216,6 +224,185 @@ function EditableSelect({
 /* -------------------------------------------------------------------------- */
 /*  Diet type labels                                                          */
 /* -------------------------------------------------------------------------- */
+
+function EditableImperialHeight({
+  heightCm,
+  onSaveCm,
+}: {
+  heightCm: number | null;
+  onSaveCm: (cm: number) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [feet, setFeet] = useState(0);
+  const [inches, setInches] = useState(0);
+  const [saving, setSaving] = useState(false);
+
+  const startEditing = () => {
+    const { feet: f, inches: i } = cmToFeetInches(heightCm ?? 170);
+    setFeet(f);
+    setInches(i);
+    setEditing(true);
+  };
+
+  const save = async () => {
+    const cm = parseFeetInchesToCm(feet, inches);
+    if (cm == null) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSaveCm(cm);
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
+  };
+
+  const display =
+    heightCm != null ? formatHeightImperial(heightCm) : "Not set";
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-muted-foreground">Height</span>
+        <div className="flex items-center gap-2">
+          <Input
+            type="number"
+            min={0}
+            max={8}
+            className="h-8 w-14 text-right"
+            value={feet}
+            onChange={(e) => setFeet(parseInt(e.target.value, 10) || 0)}
+          />
+          <span className="text-muted-foreground">ft</span>
+          <Input
+            type="number"
+            min={0}
+            max={11}
+            className="h-8 w-14 text-right"
+            value={inches}
+            onChange={(e) =>
+              setInches(Math.min(11, Math.max(0, parseInt(e.target.value, 10) || 0)))
+            }
+          />
+          <span className="text-muted-foreground">in</span>
+          <button
+            type="button"
+            className="text-xs font-medium text-primary"
+            onClick={save}
+            disabled={saving}
+          >
+            Done
+          </button>
+          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="group/field flex cursor-pointer items-center justify-between rounded-md px-1 py-0.5 text-sm -mx-1 transition-colors hover:bg-muted/50"
+      onClick={startEditing}
+    >
+      <span className="text-muted-foreground">Height</span>
+      <div className="flex items-center gap-1.5">
+        <span
+          className={
+            heightCm == null ? "italic text-muted-foreground" : ""
+          }
+        >
+          {display}
+        </span>
+        <Pencil className="h-3 w-3 text-muted-foreground/0 transition-colors group-hover/field:text-muted-foreground" />
+      </div>
+    </div>
+  );
+}
+
+function EditableImperialWeight({
+  label,
+  weightKg,
+  onSaveKg,
+}: {
+  label: string;
+  weightKg: number | null;
+  onSaveKg: (kg: number) => Promise<void>;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draftLb, setDraftLb] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const startEditing = () => {
+    setDraftLb(
+      weightKg != null ? String(Math.round(kgToLb(weightKg))) : ""
+    );
+    setEditing(true);
+  };
+
+  const save = async () => {
+    const lb = parseFloat(draftLb);
+    if (Number.isNaN(lb) || lb <= 0) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSaveKg(lbToKg(lb));
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
+  };
+
+  const display =
+    weightKg != null ? formatWeightLb(weightKg) : "Not set";
+
+  if (editing) {
+    return (
+      <div className="flex items-center justify-between gap-3 text-sm">
+        <span className="shrink-0 text-muted-foreground">{label}</span>
+        <div className="flex items-center gap-1.5">
+          <Input
+            type="number"
+            step="1"
+            className="h-7 w-24 text-right text-sm"
+            value={draftLb}
+            onChange={(e) => setDraftLb(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") void save();
+              if (e.key === "Escape") setEditing(false);
+            }}
+            onBlur={() => void save()}
+            disabled={saving}
+          />
+          <span className="text-xs text-muted-foreground">lb</span>
+          {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="group/field flex cursor-pointer items-center justify-between rounded-md px-1 py-0.5 text-sm -mx-1 transition-colors hover:bg-muted/50"
+      onClick={startEditing}
+    >
+      <span className="text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-1.5">
+        <span
+          className={
+            weightKg == null ? "italic text-muted-foreground" : ""
+          }
+        >
+          {display}
+        </span>
+        <Pencil className="h-3 w-3 text-muted-foreground/0 transition-colors group-hover/field:text-muted-foreground" />
+      </div>
+    </div>
+  );
+}
 
 const DIET_LABELS: Record<string, string> = {
   flexible: "Flexible",
@@ -430,8 +617,8 @@ export default function ProfilePage() {
         </Card>
         <Card className="p-3">
           <div className="flex items-center gap-2 mb-1.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-green-500/10">
-              <Flame className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/12">
+              <Flame className="h-3.5 w-3.5 text-primary" />
             </div>
           </div>
           <p className="text-2xl font-bold tabular-nums">{workoutStats.currentStreak}</p>
@@ -460,23 +647,25 @@ export default function ProfilePage() {
                 value={prefs.age}
                 onSave={(v) => savePrefsField("age", v)}
               />
-              <EditableField
-                label="Height"
-                value={prefs.height_cm}
-                suffix="cm"
-                onSave={(v) => savePrefsField("height_cm", v)}
+              <EditableImperialHeight
+                heightCm={prefs.height_cm}
+                onSaveCm={async (cm) => {
+                  await savePrefsField("height_cm", String(cm));
+                }}
               />
-              <EditableField
+              <EditableImperialWeight
                 label="Weight"
-                value={prefs.weight_kg}
-                suffix="kg"
-                onSave={(v) => savePrefsField("weight_kg", v)}
+                weightKg={prefs.weight_kg}
+                onSaveKg={async (kg) => {
+                  await savePrefsField("weight_kg", String(kg));
+                }}
               />
-              <EditableField
-                label="Target Weight"
-                value={prefs.target_weight_kg}
-                suffix="kg"
-                onSave={(v) => savePrefsField("target_weight_kg", v)}
+              <EditableImperialWeight
+                label="Target weight"
+                weightKg={prefs.target_weight_kg}
+                onSaveKg={async (kg) => {
+                  await savePrefsField("target_weight_kg", String(kg));
+                }}
               />
             </>
           )}

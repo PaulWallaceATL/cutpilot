@@ -45,7 +45,7 @@ const itemVariants = {
 export function FooterSection() {
   return (
     <footer className="relative w-full overflow-hidden bg-background border-t border-border/30 py-12 sm:py-16 md:py-20 lg:py-24">
-      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
           initial="hidden"

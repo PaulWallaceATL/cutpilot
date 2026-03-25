@@ -17,7 +17,9 @@ function formatTime(totalSeconds: number): string {
   const mins = Math.floor((totalSeconds % 3600) / 60);
   const secs = totalSeconds % 60;
   const pad = (n: number) => n.toString().padStart(2, "0");
-  return hrs > 0 ? `${pad(hrs)}:${pad(mins)}:${pad(secs)}` : `${pad(mins)}:${pad(secs)}`;
+  return hrs > 0
+    ? `${pad(hrs)}:${pad(mins)}:${pad(secs)}`
+    : `${pad(mins)}:${pad(secs)}`;
 }
 
 export function WorkoutTimer({
@@ -47,7 +49,9 @@ export function WorkoutTimer({
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
       if (startTimeRef.current != null) {
-        accumulatedRef.current += Math.floor((Date.now() - startTimeRef.current) / 1000);
+        accumulatedRef.current += Math.floor(
+          (Date.now() - startTimeRef.current) / 1000
+        );
         startTimeRef.current = null;
       }
     }
@@ -73,11 +77,12 @@ export function WorkoutTimer({
   }
 
   const progress = Math.min(seconds / 3600, 1);
+  const ringDash = progress * 62.83;
 
   if (compact) {
     return (
       <div className={cn("flex items-center gap-2", className)}>
-        <div className="flex items-center gap-1.5 rounded-full bg-muted/80 px-3 py-1">
+        <div className="flex items-center gap-1.5 rounded-full border border-border/50 bg-muted/50 px-3 py-1 shadow-soft backdrop-blur-sm">
           <Timer className="h-3.5 w-3.5 text-primary" />
           <span className="font-mono text-sm font-semibold tabular-nums tracking-tight">
             {formatTime(seconds)}
@@ -100,40 +105,80 @@ export function WorkoutTimer({
   }
 
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5", className)}>
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/3" />
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-border/50 bg-card/90 p-6 shadow-soft backdrop-blur-sm",
+        className
+      )}
+    >
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.07] via-transparent to-primary/[0.04]" />
       <div className="relative">
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/12 ring-1 ring-primary/15">
               <Timer className="h-4 w-4 text-primary" />
             </div>
-            <span className="text-sm font-medium text-muted-foreground">Workout Timer</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Session timer
+            </span>
           </div>
           <div
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+              "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
               running
-                ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                ? "bg-primary/12 text-primary"
                 : seconds > 0
-                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                  ? "bg-amber-500/12 text-amber-700 dark:text-amber-400"
                   : "bg-muted text-muted-foreground"
             )}
           >
-            <span className={cn("h-1.5 w-1.5 rounded-full", running ? "bg-green-500 animate-pulse" : seconds > 0 ? "bg-amber-500" : "bg-muted-foreground/40")} />
+            <span
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                running
+                  ? "animate-pulse bg-primary"
+                  : seconds > 0
+                    ? "bg-amber-500"
+                    : "bg-muted-foreground/40"
+              )}
+            />
             {running ? "Active" : seconds > 0 ? "Paused" : "Ready"}
           </div>
         </div>
 
-        <div className="text-center mb-4">
-          <span className="font-mono text-4xl font-bold tabular-nums tracking-tight">
-            {formatTime(seconds)}
-          </span>
+        <div className="mb-2 flex flex-col items-center gap-3">
+          <div className="relative flex h-36 w-36 items-center justify-center">
+            <svg className="absolute h-full w-full -rotate-90" viewBox="0 0 24 24">
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="text-border/80"
+              />
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeDasharray={`${ringDash} 62.83`}
+                strokeLinecap="round"
+                className="text-primary transition-[stroke-dasharray] duration-300"
+              />
+            </svg>
+            <span className="relative font-mono text-4xl font-bold tabular-nums tracking-tight text-foreground sm:text-5xl">
+              {formatTime(seconds)}
+            </span>
+          </div>
         </div>
 
-        <div className="h-1.5 w-full rounded-full bg-muted mb-5 overflow-hidden">
+        <div className="mb-5 h-1.5 w-full overflow-hidden rounded-full bg-muted/90 ring-1 ring-border/30">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-300"
+            className="h-full rounded-full bg-gradient-to-r from-primary to-primary/75 transition-[width] duration-300"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
@@ -142,10 +187,10 @@ export function WorkoutTimer({
           <Button
             onClick={toggleTimer}
             className={cn(
-              "flex-1 gap-2 transition-all",
+              "flex-1 gap-2 rounded-xl transition-[box-shadow,background-color]",
               running
-                ? "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 dark:text-amber-400 border border-amber-500/20"
-                : "bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg"
+                ? "border border-amber-500/25 bg-amber-500/10 text-amber-800 hover:bg-amber-500/15 dark:text-amber-300"
+                : "bg-primary text-primary-foreground shadow-soft hover:shadow-elevated"
             )}
             variant={running ? "outline" : "default"}
           >
@@ -166,7 +211,8 @@ export function WorkoutTimer({
               variant="outline"
               size="icon"
               onClick={resetTimer}
-              className="shrink-0"
+              className="shrink-0 rounded-xl"
+              aria-label="Reset timer"
             >
               <RotateCcw className="h-4 w-4" />
             </Button>

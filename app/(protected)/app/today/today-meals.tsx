@@ -15,12 +15,12 @@ export async function TodayMeals({ userId }: { userId: string }) {
 
   if (!plan) {
     return (
-      <Card className="overflow-hidden">
+      <Card variant="glass" className="overflow-hidden">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-muted p-3">
-            <UtensilsCrossed className="h-8 w-8 text-muted-foreground/50" />
+          <div className="rounded-2xl bg-muted/60 p-4 ring-1 ring-border/40">
+            <UtensilsCrossed className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">No meal plan yet</p>
+          <p className="mt-4 text-sm text-muted-foreground">No meal plan yet</p>
         </CardContent>
       </Card>
     );
@@ -37,12 +37,14 @@ export async function TodayMeals({ userId }: { userId: string }) {
 
   if (!mealDay) {
     return (
-      <Card className="overflow-hidden">
+      <Card variant="glass" className="overflow-hidden">
         <CardContent className="flex flex-col items-center justify-center py-12">
-          <div className="rounded-full bg-muted p-3">
-            <UtensilsCrossed className="h-8 w-8 text-muted-foreground/50" />
+          <div className="rounded-2xl bg-muted/60 p-4 ring-1 ring-border/40">
+            <UtensilsCrossed className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">No meals for today</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            No meals for today
+          </p>
         </CardContent>
       </Card>
     );
@@ -57,14 +59,17 @@ export async function TodayMeals({ userId }: { userId: string }) {
   }>;
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary/8 to-transparent pb-3">
+    <Card
+      variant="elevated"
+      className="overflow-hidden transition-[box-shadow,transform] duration-200 hover:-translate-y-px"
+    >
+      <CardHeader className="border-b border-border/40 bg-gradient-to-r from-primary/[0.07] to-transparent pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <div className="rounded-lg bg-primary/10 p-1.5">
+          <CardTitle className="text-section-title flex items-center gap-2 text-base">
+            <div className="rounded-xl bg-primary/12 p-1.5 ring-1 ring-primary/15">
               <UtensilsCrossed className="h-4 w-4 text-primary" />
             </div>
-            Today&apos;s Meals
+            Today&apos;s meals
           </CardTitle>
           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary tabular-nums">
             {mealDay.total_calories} cal
@@ -77,7 +82,7 @@ export async function TodayMeals({ userId }: { userId: string }) {
             <Link
               key={meal.id}
               href={`/app/meals/${meal.id}`}
-              className="group flex items-center justify-between rounded-xl border p-3.5 transition-all duration-200 hover:bg-muted/50 hover:shadow-sm hover:border-primary/20"
+              className="group flex items-center justify-between rounded-xl border border-border/50 bg-background/30 p-3.5 transition-[background-color,box-shadow,border-color] duration-200 hover:border-primary/20 hover:bg-muted/40 hover:shadow-soft"
             >
               <div>
                 <p className="text-sm font-medium transition-colors group-hover:text-primary">
@@ -96,9 +101,9 @@ export async function TodayMeals({ userId }: { userId: string }) {
         </div>
         <Link
           href="/app/meals"
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-primary/20 bg-primary/5 px-4 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary/10 hover:border-primary/30"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-primary/25 bg-primary/8 px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/12"
         >
-          View All Meals
+          View all meals
           <ArrowRight className="h-4 w-4" />
         </Link>
       </CardContent>

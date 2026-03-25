@@ -6,6 +6,7 @@ import { SetLogger } from "./set-logger";
 import type { WorkoutExercise } from "@/types/database";
 import { getExerciseIllustrationDisplay } from "@/lib/workout/exercise-illustration-display";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Lightbulb } from "lucide-react";
 
 interface ExerciseCardProps {
   exercise: WorkoutExercise;
@@ -25,14 +26,22 @@ export function ExerciseCard({
 }: ExerciseCardProps) {
   const illustration = getExerciseIllustrationDisplay(exercise);
 
+  const coachTip =
+    exercise.weight_suggestion?.trim() ||
+    (!exercise.weight_suggestion && exercise.notes?.trim()) ||
+    null;
+
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+    <Card
+      variant="elevated"
+      className="overflow-hidden transition-[box-shadow,transform] duration-200 hover:-translate-y-px"
+    >
       <div className="grid gap-0 md:grid-cols-[minmax(0,240px)_1fr] md:gap-0">
         <div
           className={
             illustration
-              ? "relative aspect-[4/3] w-full border-b border-border/60 bg-gradient-to-b from-muted/50 to-muted/20 md:aspect-auto md:min-h-[220px] md:border-b-0 md:border-r"
-              : "relative flex min-h-[100px] w-full items-center justify-center border-b border-border/60 bg-muted/25 md:min-h-[200px] md:border-b-0 md:border-r"
+              ? "relative aspect-[4/3] w-full border-b border-border/50 bg-gradient-to-b from-muted/45 to-muted/15 md:aspect-auto md:min-h-[220px] md:border-b-0 md:border-r md:border-border/50"
+              : "relative flex min-h-[100px] w-full items-center justify-center border-b border-border/50 bg-muted/20 md:min-h-[200px] md:border-b-0 md:border-r md:border-border/50"
           }
         >
           {illustration ? (
@@ -74,11 +83,23 @@ export function ExerciseCard({
                 </span>
               ) : null}
             </div>
-            {exercise.notes && (
-              <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
+            {exercise.notes && exercise.weight_suggestion && (
+              <p className="mt-1 text-xs text-muted-foreground">{exercise.notes}</p>
             )}
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="space-y-3 pt-0">
+            {coachTip && (
+              <div className="flex gap-2 rounded-xl border border-primary/20 bg-primary/[0.06] px-3 py-2.5 text-xs leading-relaxed text-foreground/90">
+                <Lightbulb
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary"
+                  aria-hidden
+                />
+                <p>
+                  <span className="font-medium text-primary">Coach tip: </span>
+                  {coachTip}
+                </p>
+              </div>
+            )}
             <SetLogger
               exercise={exercise}
               workoutLogId={workoutLogId}

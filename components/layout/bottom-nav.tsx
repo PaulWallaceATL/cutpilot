@@ -23,8 +23,11 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/80 backdrop-blur-xl md:hidden">
-      <div className="flex items-center justify-around py-2">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/85 shadow-soft backdrop-blur-xl md:hidden"
+      aria-label="Mobile"
+    >
+      <div className="flex items-center justify-around px-1 py-2">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/");
@@ -33,24 +36,26 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex flex-col items-center gap-1 px-3 py-1 text-xs transition-all duration-200 ease-out",
+                "relative flex min-w-[3.25rem] flex-col items-center gap-0.5 rounded-xl px-2 py-1 text-[11px] transition-[color,background-color] duration-200",
                 isActive
-                  ? "text-primary"
+                  ? "font-medium text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <item.icon
+              <span
                 className={cn(
-                  "h-5 w-5 transition-transform duration-200",
-                  isActive && "scale-110"
+                  "flex h-9 w-9 items-center justify-center rounded-xl transition-[background-color,box-shadow] duration-200",
+                  isActive
+                    ? "bg-primary/12 shadow-soft ring-1 ring-primary/12"
+                    : "bg-transparent"
                 )}
-              />
-              <span className={cn(isActive && "font-medium")}>
-                {item.label}
+              >
+                <item.icon
+                  className="h-[1.125rem] w-[1.125rem] stroke-[2.1]"
+                  aria-hidden
+                />
               </span>
-              {isActive && (
-                <span className="absolute -bottom-1 h-1 w-1 rounded-full bg-primary" />
-              )}
+              <span>{item.label}</span>
             </Link>
           );
         })}

@@ -66,7 +66,7 @@ export function MacroSummary({ calories, protein, carbs, fat }: MacroSummaryProp
         label="Carbs"
         current={carbs.current}
         target={carbs.target}
-        color="bg-green-500"
+        color="bg-primary/85"
       />
       <MacroBar
         label="Fat"

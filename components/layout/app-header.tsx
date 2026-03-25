@@ -22,13 +22,12 @@ export function AppHeader() {
     : user?.email?.[0]?.toUpperCase() || "U";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border/50 bg-background/80 px-4 backdrop-blur-xl md:px-6">
-      <div className="flex items-center gap-2 md:hidden">
-        <div className="relative flex items-center justify-center">
-          <div className="absolute inset-0 -m-1 rounded-full bg-primary/20 blur-md" />
-          <Zap className="relative h-5 w-5 text-primary drop-shadow-sm" />
+    <header className="flex h-14 items-center justify-between border-b border-border/50 bg-background/85 px-4 shadow-soft backdrop-blur-xl md:px-6">
+      <div className="flex items-center gap-2.5 md:hidden">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/12 ring-1 ring-primary/15">
+          <Zap className="h-[1.05rem] w-[1.05rem] text-primary" strokeWidth={2.25} />
         </div>
-        <span className="font-bold tracking-tight">CutPilot</span>
+        <span className="text-base font-semibold tracking-tight">CutPilot</span>
       </div>
 
       <div className="hidden md:block" />

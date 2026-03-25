@@ -2,6 +2,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { getOpenAIClient, getTextModel } from "./client";
 import { initialPlanSchema, type AIInitialPlan } from "@/lib/schemas/plan";
 import type { OnboardingFormData } from "@/lib/schemas/onboarding";
+import { formatHeightImperial, formatWeightLb } from "@/lib/units/imperial";
 
 export async function generateInitialPlan(
   data: OnboardingFormData
@@ -27,7 +28,7 @@ Rules:
 Goals: ${data.fitness_goal}
 Experience: ${data.experience_level}
 Age: ${data.age}, Sex: ${data.sex}
-Height: ${data.height_cm}cm, Weight: ${data.weight_kg}kg, Target: ${data.target_weight_kg}kg
+Height: ${formatHeightImperial(data.height_cm)}, Weight: ${formatWeightLb(data.weight_kg)}, Target: ${formatWeightLb(data.target_weight_kg)}
 Activity Level: ${data.activity_level}
 Workout Schedule: ${data.workout_days_per_week} days/week, ${data.workout_duration_minutes} min/session
 Equipment: ${data.available_equipment.join(", ") || "Bodyweight only"}

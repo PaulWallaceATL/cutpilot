@@ -1,45 +1,59 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Send, Bot, User, Loader2 } from "lucide-react";
+import { Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  CoachHeader,
+  CoachMessageRow,
+  CoachTypingIndicator,
+  CoachEmptyState,
+  CoachSuggestedChips,
+  CoachComposer,
+  type CoachMessage,
+} from "@/components/shared/ai/coach-primitives";
 
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
+export type { CoachMessage };
 
 interface AiChatProps {
-  messages: Message[];
+  messages: CoachMessage[];
   onSend: (message: string) => Promise<void>;
   placeholder?: string;
   className?: string;
+  title?: string;
+  subtitle?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  suggestedPrompts?: string[];
 }
 
 export function AiChat({
   messages,
   onSend,
-  placeholder = "Ask CutPilot...",
+  placeholder = "Ask your coach…",
   className,
+  title = "Coach",
+  subtitle = "This session",
+  emptyTitle = "Ask anything",
+  emptyDescription =
+    "Form cues, substitutions, or pacing — your coach is here for this workout.",
+  suggestedPrompts = [],
 }: AiChatProps) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, sending]);
 
-  async function handleSend() {
-    if (!input.trim() || sending) return;
-    const msg = input.trim();
+  async function handleSend(text?: string) {
+    const msg = (text ?? input).trim();
+    if (!msg || sending) return;
     setInput("");
     setSending(true);
     try {
@@ -50,83 +64,48 @@ export function AiChat({
   }
 
   return (
-    <Card className={cn("flex flex-col", className)}>
-      <div className="border-b px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Bot className="h-4 w-4 text-primary" />
-          <span className="text-sm font-medium">CutPilot AI</span>
+    <Card
+      variant="glass"
+      className={cn("flex min-h-0 flex-col overflow-hidden", className)}
+    >
+      <CoachHeader title={title} subtitle={subtitle} icon={Bot} />
+
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
+      >
+        <div className="space-y-4">
+          {messages.length === 0 && !sending && (
+            <CoachEmptyState
+              icon={Bot}
+              title={emptyTitle}
+              description={emptyDescription}
+            >
+              {suggestedPrompts.length > 0 && (
+                <CoachSuggestedChips
+                  items={suggestedPrompts}
+                  onSelect={(p) => void handleSend(p)}
+                />
+              )}
+            </CoachEmptyState>
+          )}
+
+          {messages.map((msg) => (
+            <CoachMessageRow key={msg.id} message={msg} />
+          ))}
+
+          {sending && <CoachTypingIndicator />}
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-        <div className="space-y-4">
-          {messages.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-8">
-              Ask me anything about your current session.
-            </p>
-          )}
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                "flex gap-3",
-                msg.role === "user" ? "justify-end" : "justify-start"
-              )}
-            >
-              {msg.role === "assistant" && (
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <Bot className="h-3.5 w-3.5 text-primary" />
-                </div>
-              )}
-              <div
-                className={cn(
-                  "max-w-[80%] rounded-lg px-3 py-2 text-sm",
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
-                )}
-              >
-                {msg.content}
-              </div>
-              {msg.role === "user" && (
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-secondary">
-                  <User className="h-3.5 w-3.5" />
-                </div>
-              )}
-            </div>
-          ))}
-          {sending && (
-            <div className="flex gap-3">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                <Bot className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <div className="rounded-lg bg-muted px-3 py-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
-      <div className="border-t p-3">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="flex gap-2"
-        >
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={placeholder}
-            disabled={sending}
-            className="flex-1"
-          />
-          <Button type="submit" size="icon" disabled={sending || !input.trim()}>
-            <Send className="h-4 w-4" />
-          </Button>
-        </form>
+      <div className="border-t border-border/50 bg-background/40 p-3 backdrop-blur-sm">
+        <CoachComposer
+          value={input}
+          onChange={setInput}
+          onSubmit={() => void handleSend()}
+          placeholder={placeholder}
+          sending={sending}
+        />
       </div>
     </Card>
   );

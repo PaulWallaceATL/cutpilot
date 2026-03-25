@@ -1,22 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Inter } from "next/font/google";
+import type { ReactNode } from "react";
+import { DM_Sans, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { AppPreloader } from "@/components/shared/app-preloader";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -29,16 +26,12 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} min-h-screen bg-background font-sans antialiased`}
-      >
-        <AppPreloader>
-          {children}
-        </AppPreloader>
+    <html lang="en" className={`${dmSans.variable} ${geistMono.variable}`}>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <AppPreloader>{children}</AppPreloader>
         <Toaster />
       </body>
     </html>

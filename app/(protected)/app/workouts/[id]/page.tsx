@@ -74,19 +74,19 @@ export default async function WorkoutDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
-        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-primary/5 blur-2xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-primary/[0.1] via-card/90 to-primary/[0.04] p-6 shadow-soft backdrop-blur-sm sm:p-8">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-primary/12 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-primary/6 blur-3xl" />
         <div className="relative space-y-3">
           <Link
             href="/app/workouts"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Workouts
+            Back to workouts
           </Link>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-heading">{workout.name}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-page-title text-2xl sm:text-3xl">{workout.name}</h1>
             {workout.focus && (
               <Badge variant="secondary" className="font-medium">{workout.focus}</Badge>
             )}
@@ -121,7 +121,7 @@ export default async function WorkoutDetailPage({
       <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       <div>
-        <h2 className="text-lg font-semibold font-heading mb-3">AI Assistant</h2>
+        <h2 className="text-section-title mb-3">Workout coach</h2>
         <WorkoutChat workoutDayId={id} initialMessages={chatMessages} />
       </div>
     </div>

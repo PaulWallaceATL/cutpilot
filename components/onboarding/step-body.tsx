@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cmToFeetInches, feetInchesToCm, kgToLb, lbToKg } from "@/lib/units/imperial";
 
 interface StepBodyProps {
   data: {
@@ -23,16 +24,20 @@ interface StepBodyProps {
 }
 
 export function StepBody({ data, onChange }: StepBodyProps) {
+  const { feet, inches } = cmToFeetInches(data.height_cm || 175);
+  const weightLb = Math.round(kgToLb(data.weight_kg || 0));
+  const targetLb = Math.round(kgToLb(data.target_weight_kg || 0));
+
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold">About you</h2>
-        <p className="mt-2 text-muted-foreground">
-          Help us create accurate macro calculations
+        <h2 className="text-section-title text-2xl sm:text-3xl">About you</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Help us create accurate macro calculations (imperial units)
         </p>
       </div>
 
-      <Card>
+      <Card variant="glass">
         <CardContent className="space-y-4 pt-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -40,8 +45,9 @@ export function StepBody({ data, onChange }: StepBodyProps) {
               <Input
                 type="number"
                 value={data.age || ""}
-                onChange={(e) => onChange("age", parseInt(e.target.value) || 0)}
+                onChange={(e) => onChange("age", parseInt(e.target.value, 10) || 0)}
                 placeholder="25"
+                className="rounded-xl"
               />
             </div>
             <div className="space-y-2">
@@ -50,7 +56,7 @@ export function StepBody({ data, onChange }: StepBodyProps) {
                 value={data.sex}
                 onValueChange={(v) => v && onChange("sex", v)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="rounded-xl">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
@@ -63,38 +69,66 @@ export function StepBody({ data, onChange }: StepBodyProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Height (cm)</Label>
-            <Input
-              type="number"
-              value={data.height_cm || ""}
-              onChange={(e) =>
-                onChange("height_cm", parseFloat(e.target.value) || 0)
-              }
-              placeholder="175"
-            />
+            <Label>Height</Label>
+            <div className="flex gap-3">
+              <div className="flex-1 space-y-1">
+                <span className="text-xs text-muted-foreground">Feet</span>
+                <Input
+                  type="number"
+                  min={0}
+                  max={8}
+                  value={feet}
+                  onChange={(e) => {
+                    const f = parseInt(e.target.value, 10) || 0;
+                    const cm = feetInchesToCm(f, inches);
+                    if (cm != null) onChange("height_cm", cm);
+                  }}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="w-24 space-y-1">
+                <span className="text-xs text-muted-foreground">Inches</span>
+                <Input
+                  type="number"
+                  min={0}
+                  max={11}
+                  value={inches}
+                  onChange={(e) => {
+                    const i = parseInt(e.target.value, 10) || 0;
+                    const cm = feetInchesToCm(feet, Math.min(11, Math.max(0, i)));
+                    if (cm != null) onChange("height_cm", cm);
+                  }}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Current Weight (kg)</Label>
+              <Label>Current weight (lb)</Label>
               <Input
                 type="number"
-                value={data.weight_kg || ""}
-                onChange={(e) =>
-                  onChange("weight_kg", parseFloat(e.target.value) || 0)
-                }
-                placeholder="80"
+                value={weightLb || ""}
+                onChange={(e) => {
+                  const lb = parseFloat(e.target.value) || 0;
+                  onChange("weight_kg", lbToKg(lb));
+                }}
+                placeholder="175"
+                className="rounded-xl"
               />
             </div>
             <div className="space-y-2">
-              <Label>Target Weight (kg)</Label>
+              <Label>Target weight (lb)</Label>
               <Input
                 type="number"
-                value={data.target_weight_kg || ""}
-                onChange={(e) =>
-                  onChange("target_weight_kg", parseFloat(e.target.value) || 0)
-                }
-                placeholder="75"
+                value={targetLb || ""}
+                onChange={(e) => {
+                  const lb = parseFloat(e.target.value) || 0;
+                  onChange("target_weight_kg", lbToKg(lb));
+                }}
+                placeholder="165"
+                className="rounded-xl"
               />
             </div>
           </div>

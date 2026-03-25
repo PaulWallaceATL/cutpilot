@@ -112,17 +112,14 @@ export function RestTimer({
             strokeWidth="2.5"
             strokeDasharray={`${progress * 62.83} 62.83`}
             strokeLinecap="round"
-            className={cn(
-              "transition-all duration-200",
-              finished ? "text-green-500" : "text-primary"
-            )}
+            className="text-primary transition-all duration-200"
           />
         </svg>
 
         <span
           className={cn(
             "font-mono text-sm font-semibold tabular-nums",
-            finished ? "text-green-600 dark:text-green-400" : "text-foreground"
+            finished ? "text-primary" : "text-foreground"
           )}
         >
           {finished ? "Go!" : display}

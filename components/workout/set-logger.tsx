@@ -67,35 +67,39 @@ export function SetLogger({
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 text-xs text-muted-foreground px-1">
-        <span>Set</span>
-        <span>Weight</span>
+      <div className="grid grid-cols-[2rem_1fr_1fr_auto] gap-2 border-b border-border/40 px-1 pb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:grid-cols-[2.25rem_1fr_1fr_auto]">
+        <span className="text-center">#</span>
+        <span>Weight (lb)</span>
         <span>Reps</span>
-        <span>Done</span>
+        <span className="text-center">Done</span>
       </div>
       {sets.map((set, i) => (
         <div key={set.set_number} className="space-y-1">
-          <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 items-center">
-            <span className="text-sm font-medium w-6 text-center">
+          <div className="grid grid-cols-[2rem_1fr_1fr_auto] items-center gap-2 sm:grid-cols-[2.25rem_1fr_1fr_auto]">
+            <span className="w-6 text-center text-sm font-medium tabular-nums text-muted-foreground">
               {set.set_number}
             </span>
             <Input
               type="number"
+              inputMode="decimal"
               value={set.weight || ""}
               onChange={(e) =>
                 updateSet(i, "weight", parseFloat(e.target.value) || 0)
               }
-              placeholder="lbs"
-              className="h-8 text-sm"
+              placeholder="0"
+              aria-label={`Set ${set.set_number} weight in pounds`}
+              className="h-9 rounded-lg text-sm tabular-nums"
             />
             <Input
               type="number"
+              inputMode="numeric"
               value={set.reps || ""}
               onChange={(e) =>
                 updateSet(i, "reps", parseInt(e.target.value) || 0)
               }
-              placeholder="reps"
-              className="h-8 text-sm"
+              placeholder="0"
+              aria-label={`Set ${set.set_number} reps`}
+              className="h-9 rounded-lg text-sm tabular-nums"
             />
             <Checkbox
               checked={set.completed}

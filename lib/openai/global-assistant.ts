@@ -2,6 +2,7 @@ import { zodTextFormat } from "openai/helpers/zod";
 import { getOpenAIClient, getTextModel } from "./client";
 import { globalAssistantResponseSchema, type AIGlobalAssistantResponse } from "@/lib/schemas/assistant";
 import type { AiMessage } from "@/types/database";
+import { formatHeightImperial, formatWeightLb } from "@/lib/units/imperial";
 
 export interface UserContext {
   name: string | null;
@@ -38,9 +39,9 @@ function buildProfileSummary(ctx: UserContext): string {
   lines.push(`Onboarding completed: ${ctx.onboardingCompleted ? "Yes" : "No"}`);
   lines.push(`Age: ${ctx.age ?? "NOT SET"}`);
   lines.push(`Sex: ${ctx.sex ?? "NOT SET"}`);
-  lines.push(`Height: ${ctx.heightCm ? `${ctx.heightCm} cm` : "NOT SET"}`);
-  lines.push(`Weight: ${ctx.weightKg ? `${ctx.weightKg} kg` : "NOT SET"}`);
-  lines.push(`Target weight: ${ctx.targetWeightKg ? `${ctx.targetWeightKg} kg` : "NOT SET"}`);
+  lines.push(`Height: ${ctx.heightCm != null ? formatHeightImperial(ctx.heightCm) : "NOT SET"}`);
+  lines.push(`Weight: ${ctx.weightKg != null ? formatWeightLb(ctx.weightKg) : "NOT SET"}`);
+  lines.push(`Target weight: ${ctx.targetWeightKg != null ? formatWeightLb(ctx.targetWeightKg) : "NOT SET"}`);
   lines.push(`Fitness goal: ${ctx.fitnessGoal ?? "NOT SET"}`);
   lines.push(`Experience level: ${ctx.experienceLevel ?? "NOT SET"}`);
   lines.push(`Activity level: ${ctx.activityLevel ?? "NOT SET"}`);
@@ -97,14 +98,14 @@ You can update the user's profile and preferences by including actions in your r
 
 Each action is an object with action_type plus the relevant fields:
 - action_type "update_profile": set profile_fields (e.g. { full_name: "Paul" })
-- action_type "update_preferences": set preference_fields (e.g. { age: 28, weight_kg: 82 })
+- action_type "update_preferences": set preference_fields (e.g. { age: 28, weight_kg: 37.2 } — weights are stored in kg; convert from lb if the user gives imperial)
   Available preference fields: age, sex, height_cm, weight_kg, target_weight_kg, fitness_goal (lose_fat/build_muscle/maintain/recomp/improve_health), experience_level (beginner/intermediate/advanced), activity_level (sedentary/light/moderate/active/very_active), diet_type (flexible/keto/paleo/vegan/vegetarian/mediterranean), workout_days_per_week, calorie_target, protein_target_g, carb_target_g, fat_target_g, dietary_restrictions
 - action_type "add_injury": set injury_body_part, injury_severity (mild/moderate/severe), and optionally injury_description
 - action_type "remove_injury": set injury_body_part to mark it as resolved
 - action_type "generate_plans": Generate personalized workout AND meal plans based on the user's current profile. Use this when: (1) the user has provided enough info (at minimum: fitness_goal, experience_level, and workout_days_per_week), AND (2) they don't have plans yet or ask for new ones. No extra fields needed — it reads from the saved profile.
 - action_type "add_checklist_item": Add an item to today's daily checklist. Set checklist_title (e.g. "Doctor appointment at 3pm", "Grocery shopping", "Therapy session", "Take creatine") and checklist_type (custom/workout/meal/water/sleep/supplement). Use this when the user mentions tasks, appointments, reminders, or anything they want to track today.
 
-IMPORTANT: When you save data, confirm it naturally in your message (e.g. "Got it, I've saved your weight as 82kg!"). Only include actions for data the user explicitly provides — never assume or make up values.
+IMPORTANT: When you save data, confirm it naturally in your message using imperial units in your reply (e.g. "Got it, I've saved your weight as 180 lb!"). Only include actions for data the user explicitly provides — never assume or make up values.
 
 ## Conversation Guidelines
 - If you see missing profile data, work it into the conversation naturally. For example, if you don't know their weight, you might say "By the way, what's your current weight? That'll help me give you better advice."

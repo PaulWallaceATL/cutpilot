@@ -53,14 +53,15 @@ export function WorkoutActions({
       <Button
         onClick={handleStart}
         disabled={loading}
-        className="w-full bg-gradient-to-r from-primary to-primary/80 text-white border-0 hover:shadow-lg transition-all"
+        size="lg"
+        className="w-full rounded-xl bg-primary text-primary-foreground shadow-soft transition-[box-shadow,filter] hover:shadow-elevated hover:brightness-[1.02]"
       >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Play className="mr-2 h-4 w-4" />
         )}
-        Start Workout
+        Start workout
       </Button>
     );
   }
@@ -76,14 +77,16 @@ export function WorkoutActions({
       <Button
         onClick={handleComplete}
         disabled={loading}
-        className="w-full bg-gradient-to-r from-green-600 to-green-500 text-white border-0 hover:shadow-lg transition-all"
+        size="lg"
+        variant="outline"
+        className="w-full rounded-xl border-2 border-primary/35 bg-background font-semibold text-primary shadow-none transition-colors hover:bg-primary/10"
       >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <CheckCircle className="mr-2 h-4 w-4" />
         )}
-        Complete Workout
+        Complete workout
       </Button>
     </div>
   );

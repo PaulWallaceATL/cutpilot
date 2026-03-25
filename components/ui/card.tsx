@@ -1,20 +1,38 @@
 import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+
+const cardVariants = cva(
+  "group/card flex flex-col gap-4 overflow-hidden rounded-xl py-4 text-sm text-card-foreground has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl transition-[box-shadow,transform] duration-200 ease-out",
+  {
+    variants: {
+      variant: {
+        default: "bg-card ring-1 ring-foreground/[0.08]",
+        elevated:
+          "bg-card shadow-elevated ring-1 ring-foreground/[0.06] hover:-translate-y-0.5 hover:shadow-glass",
+        glass:
+          "border border-border/60 bg-card/75 shadow-soft backdrop-blur-xl ring-1 ring-white/20 dark:border-white/10 dark:bg-card/50 dark:ring-white/5",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
 function Card({
   className,
   size = "default",
+  variant,
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof cardVariants> & { size?: "default" | "sm" }) {
   return (
     <div
       data-slot="card"
       data-size={size}
-      className={cn(
-        "group/card flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
-        className
-      )}
+      className={cn(cardVariants({ variant }), className)}
       {...props}
     />
   )
@@ -38,7 +56,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        "font-heading text-base font-medium leading-snug tracking-tight group-data-[size=sm]/card:text-sm",
         className
       )}
       {...props}
@@ -84,7 +102,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center rounded-b-xl border-t bg-muted/50 p-4 group-data-[size=sm]/card:p-3",
+        "flex items-center rounded-b-xl border-t border-border/60 bg-muted/40 p-4 group-data-[size=sm]/card:p-3",
         className
       )}
       {...props}
@@ -94,6 +112,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
 
 export {
   Card,
+  cardVariants,
   CardHeader,
   CardFooter,
   CardTitle,

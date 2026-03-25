@@ -22,7 +22,6 @@ export default function SettingsPage() {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [unitSystem, setUnitSystem] = useState<"imperial" | "metric">("imperial");
   const [timezone, setTimezone] = useState("America/New_York");
 
   useEffect(() => {
@@ -35,7 +34,6 @@ export default function SettingsPage() {
       .then(({ data }) => {
         if (data) {
           setFullName(data.full_name || "");
-          setUnitSystem(data.unit_system || "imperial");
           setTimezone(data.timezone || "America/New_York");
         }
       });
@@ -45,7 +43,7 @@ export default function SettingsPage() {
     setLoading(true);
     const result = await updateProfile({
       full_name: fullName,
-      unit_system: unitSystem,
+      unit_system: "imperial",
       timezone,
     });
     if (result?.success) {
@@ -58,54 +56,46 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
-        <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-primary/[0.08] via-card/80 to-transparent p-6 shadow-soft backdrop-blur-sm sm:p-8">
+        <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
         <div className="relative flex items-center gap-3">
-          <div className="rounded-xl bg-primary/10 p-2.5">
+          <div className="rounded-xl bg-primary/10 p-2.5 shadow-soft">
             <Settings className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-            <p className="text-sm text-muted-foreground">Manage your account preferences</p>
+            <h1 className="text-page-title">Settings</h1>
+            <p className="text-sm text-muted-foreground">
+              Manage your account preferences
+            </p>
           </div>
         </div>
       </div>
 
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-primary/8 to-transparent">
-          <CardTitle className="text-base font-semibold">General</CardTitle>
+      <Card variant="elevated">
+        <CardHeader className="border-b border-border/50 bg-muted/30">
+          <CardTitle>General</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5 pt-6">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Full Name</Label>
+            <Label className="text-sm font-medium">Full name</Label>
             <Input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="rounded-xl border-border/60 bg-muted/30 transition-colors focus:bg-background"
+              className="rounded-xl border-border/60 bg-muted/20 transition-colors focus-visible:bg-background"
               placeholder="Enter your full name"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Unit System</Label>
-            <Select
-              value={unitSystem}
-              onValueChange={(v) => v && setUnitSystem(v as "imperial" | "metric")}
-            >
-              <SelectTrigger className="rounded-xl border-border/60 bg-muted/30 transition-colors focus:bg-background">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="imperial">Imperial (lbs, ft)</SelectItem>
-                <SelectItem value="metric">Metric (kg, cm)</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+            Body measurements and workout weights use{" "}
+            <span className="font-medium text-foreground">imperial</span> (lb,
+            ft/in) throughout the app.
           </div>
 
           <div className="space-y-2">
             <Label className="text-sm font-medium">Timezone</Label>
             <Select value={timezone} onValueChange={(v) => v && setTimezone(v)}>
-              <SelectTrigger className="rounded-xl border-border/60 bg-muted/30 transition-colors focus:bg-background">
+              <SelectTrigger className="rounded-xl border-border/60 bg-muted/20">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -124,12 +114,13 @@ export default function SettingsPage() {
           <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
           <button
+            type="button"
             onClick={handleSave}
             disabled={loading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110 disabled:pointer-events-none disabled:opacity-50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:bg-primary/90 hover:shadow-elevated disabled:pointer-events-none disabled:opacity-50"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            Save Settings
+            Save settings
           </button>
         </CardContent>
       </Card>
