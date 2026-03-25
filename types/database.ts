@@ -82,6 +82,8 @@ export type WorkoutExercise = {
   rest_seconds: number | null;
   weight_suggestion: string | null;
   notes: string | null;
+  workout_api_exercise_id: string | null;
+  exercise_image_url: string | null;
   created_at: string;
   updated_at: string;
 };

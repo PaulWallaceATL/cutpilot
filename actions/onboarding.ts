@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { onboardingSchema, type OnboardingFormData } from "@/lib/schemas/onboarding";
 import { generateInitialPlan } from "@/lib/openai/generate-plan";
+import { buildWorkoutExerciseInsertRows } from "@/lib/workout/build-exercise-rows";
 
 export async function completeOnboarding(data: OnboardingFormData) {
   const parsed = onboardingSchema.safeParse(data);
@@ -133,18 +134,11 @@ export async function completeOnboarding(data: OnboardingFormData) {
 
     if (wdError || !wDay) continue;
 
-    const exercises = day.exercises.map((ex, idx) => ({
-      user_id: user.id,
-      workout_day_id: wDay.id,
-      order_index: idx,
-      name: ex.name,
-      muscle_group: ex.muscle_group,
-      sets: ex.sets,
-      reps: ex.reps,
-      rest_seconds: ex.rest_seconds,
-      weight_suggestion: ex.weight_suggestion || null,
-      notes: ex.notes || null,
-    }));
+    const exercises = await buildWorkoutExerciseInsertRows(
+      user.id,
+      wDay.id,
+      day.exercises
+    );
 
     await supabase.from("workout_exercises").insert(exercises);
   }

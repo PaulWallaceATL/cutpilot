@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dumbbell, ArrowRight } from "lucide-react";
+import type { WorkoutExercise } from "@/types/database";
 
 export async function TodayWorkout({ userId }: { userId: string }) {
   const supabase = await createClient();
@@ -49,6 +51,11 @@ export async function TodayWorkout({ userId }: { userId: string }) {
     );
   }
 
+  const exercises = (workoutDay.workout_exercises || []) as WorkoutExercise[];
+  const sortedPreview = [...exercises].sort(
+    (a, b) => a.order_index - b.order_index
+  );
+
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
       <CardHeader className="bg-gradient-to-r from-primary/8 to-transparent pb-3">
@@ -67,22 +74,36 @@ export async function TodayWorkout({ userId }: { userId: string }) {
       <CardContent className="pt-4">
         <h3 className="font-semibold">{workoutDay.name}</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          {workoutDay.workout_exercises?.length ?? 0} exercises
+          {exercises.length} exercises
         </p>
         <div className="mt-3 space-y-1.5">
-          {workoutDay.workout_exercises?.slice(0, 3).map((ex: { id: string; name: string; sets: number; reps: string }) => (
+          {sortedPreview.slice(0, 3).map((ex) => (
             <div
               key={ex.id}
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-primary/50" />
-              <span>{ex.name}</span>
-              <span className="ml-auto text-xs tabular-nums">{ex.sets}x{ex.reps}</span>
+              {ex.exercise_image_url ? (
+                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-border/50 bg-muted/40">
+                  <Image
+                    src={ex.exercise_image_url}
+                    alt={`${ex.name} illustration`}
+                    fill
+                    className="object-contain p-0.5"
+                    sizes="36px"
+                  />
+                </span>
+              ) : (
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary/50" />
+              )}
+              <span className="min-w-0 truncate">{ex.name}</span>
+              <span className="ml-auto shrink-0 text-xs tabular-nums">
+                {ex.sets}x{ex.reps}
+              </span>
             </div>
           ))}
-          {(workoutDay.workout_exercises?.length ?? 0) > 3 && (
+          {exercises.length > 3 && (
             <div className="px-3 text-xs text-muted-foreground">
-              +{workoutDay.workout_exercises.length - 3} more
+              +{exercises.length - 3} more
             </div>
           )}
         </div>

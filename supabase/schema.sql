@@ -174,11 +174,15 @@ create table public.workout_exercises (
   rest_seconds integer default 90,
   weight_suggestion text,
   notes text,
+  workout_api_exercise_id text,
+  exercise_image_url text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 comment on table public.workout_exercises is 'Individual exercises with sets/reps within a workout day';
+comment on column public.workout_exercises.workout_api_exercise_id is 'Stable id from Workout API (api.workoutapi.com) when matched';
+comment on column public.workout_exercises.exercise_image_url is 'HTTPS URL for exercise illustration from Workout API';
 
 alter table public.workout_exercises enable row level security;
 
