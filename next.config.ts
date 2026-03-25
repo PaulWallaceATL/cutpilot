@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
         hostname: "*.workoutapi.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "*.amazonaws.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.cloudfront.net",
+        pathname: "/**",
+      },
     ],
   },
 };

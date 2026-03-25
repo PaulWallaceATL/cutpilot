@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dumbbell, ArrowRight } from "lucide-react";
 import type { WorkoutExercise } from "@/types/database";
+import { enrichMissingExerciseImages } from "@/lib/workout/enrich-existing-exercises";
 
 export async function TodayWorkout({ userId }: { userId: string }) {
   const supabase = await createClient();
@@ -52,8 +53,13 @@ export async function TodayWorkout({ userId }: { userId: string }) {
   }
 
   const exercises = (workoutDay.workout_exercises || []) as WorkoutExercise[];
-  const sortedPreview = [...exercises].sort(
+  const sorted = [...exercises].sort(
     (a, b) => a.order_index - b.order_index
+  );
+  const sortedPreview = await enrichMissingExerciseImages(
+    supabase,
+    userId,
+    sorted
   );
 
   return (

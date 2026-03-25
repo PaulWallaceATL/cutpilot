@@ -21,9 +21,16 @@ export function normalizeExerciseName(name: string): string {
     .trim();
 }
 
-function tokenSet(s: string): Set<string> {
+function expandedTokenSet(s: string): Set<string> {
   const n = normalizeExerciseName(s);
-  return new Set(n.split(" ").filter((t) => t.length > 1));
+  const tokens = n.split(" ").filter((t) => t.length > 1);
+  const set = new Set<string>();
+  for (const t of tokens) {
+    set.add(t);
+    if (t.endsWith("s") && t.length > 3) set.add(t.slice(0, -1));
+    else if (t.length > 2) set.add(`${t}s`);
+  }
+  return set;
 }
 
 function jaccard(a: Set<string>, b: Set<string>): number {
@@ -69,14 +76,14 @@ function scoreMatch(aiName: string, candidate: WorkoutApiExercise): number {
   if (!a.length || !b.length) return 0;
   if (a === b) return 1;
   if (a.includes(b) || b.includes(a)) return 0.92;
-  const tsA = tokenSet(aiName);
-  const tsB = tokenSet(candidate.name);
+  const tsA = expandedTokenSet(aiName);
+  const tsB = expandedTokenSet(candidate.name);
   const jac = jaccard(tsA, tsB);
   const lev = levenshteinRatio(aiName, candidate.name);
   return Math.max(jac * 0.95, lev * 0.85);
 }
 
-const MIN_SCORE = 0.52;
+const MIN_SCORE = 0.42;
 
 export function bestMatchExercise(
   aiExerciseName: string,

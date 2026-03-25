@@ -7,6 +7,7 @@ import { WorkoutActions } from "./workout-actions";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import type { WorkoutExercise } from "@/types/database";
+import { enrichMissingExerciseImages } from "@/lib/workout/enrich-existing-exercises";
 
 export default async function WorkoutDetailPage({
   params,
@@ -65,6 +66,12 @@ export default async function WorkoutDetailPage({
     (a, b) => a.order_index - b.order_index
   );
 
+  const enrichedExercises = await enrichMissingExerciseImages(
+    supabase,
+    user.id,
+    sortedExercises
+  );
+
   return (
     <div className="space-y-6">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-6 sm:p-8">
@@ -95,8 +102,8 @@ export default async function WorkoutDetailPage({
         existingLogId={existingLog?.id || null}
       />
 
-      <div className="space-y-4">
-        {sortedExercises.map((exercise) => {
+      <div className="space-y-5">
+        {enrichedExercises.map((exercise) => {
           const setLogs = (existingLog?.workout_set_logs || []).filter(
             (s: { exercise_id: string }) => s.exercise_id === exercise.id
           );

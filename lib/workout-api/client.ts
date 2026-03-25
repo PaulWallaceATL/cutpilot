@@ -1,4 +1,4 @@
-import { parseExerciseListPayload } from "./parse";
+import { parseExerciseListPayload, parseWorkoutApiExercise } from "./parse";
 import type { WorkoutApiExercise } from "./types";
 
 const DEFAULT_BASE = "https://api.workoutapi.com";
@@ -36,6 +36,23 @@ async function workoutApiFetch(
       ...rest.headers,
     },
   });
+}
+
+export async function fetchExerciseById(
+  exerciseId: string
+): Promise<WorkoutApiExercise | null> {
+  const res = await workoutApiFetch(
+    `/exercises/${encodeURIComponent(exerciseId)}`
+  );
+  if (!res.ok) return null;
+  const data: unknown = await res.json().catch(() => null);
+  if (data && typeof data === "object") {
+    const o = data as Record<string, unknown>;
+    const inner = o.data ?? o.exercise ?? o.payload ?? o.result;
+    const parsed = parseWorkoutApiExercise(inner ?? data);
+    if (parsed) return parsed;
+  }
+  return null;
 }
 
 export async function fetchAllExercises(): Promise<WorkoutApiExercise[]> {

@@ -22,52 +22,69 @@ export function ExerciseCard({
   workoutLogId,
   existingSets,
 }: ExerciseCardProps) {
-  const imageUrl = exercise.exercise_image_url;
+  const imageUrl = exercise.exercise_image_url?.trim() || null;
 
   return (
-    <Card className="transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
-      <CardHeader className="pb-2">
-        {imageUrl ? (
-          <div className="relative mb-3 aspect-[4/3] w-full overflow-hidden rounded-lg border border-border/60 bg-muted/40">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="grid gap-0 md:grid-cols-[minmax(0,240px)_1fr] md:gap-0">
+        <div
+          className={
+            imageUrl
+              ? "relative aspect-[4/3] w-full border-b border-border/60 bg-gradient-to-b from-muted/50 to-muted/20 md:aspect-auto md:min-h-[220px] md:border-b-0 md:border-r"
+              : "relative flex min-h-[100px] w-full items-center justify-center border-b border-border/60 bg-muted/25 md:min-h-[200px] md:border-b-0 md:border-r"
+          }
+        >
+          {imageUrl ? (
             <Image
               src={imageUrl}
               alt={`Illustration: ${exercise.name}`}
               fill
-              className="object-contain p-2"
-              sizes="(max-width: 768px) 100vw, 560px"
+              className="object-contain p-3 md:p-4"
+              sizes="(max-width: 768px) 100vw, 240px"
+              priority={false}
             />
-          </div>
-        ) : null}
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">{exercise.name}</CardTitle>
-          {exercise.muscle_group && (
-            <Badge variant="outline" className="text-xs">
-              {exercise.muscle_group}
-            </Badge>
-          )}
-        </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span>
-            {exercise.sets} sets x {exercise.reps} reps
-          </span>
-          {exercise.rest_seconds && (
-            <span className="flex items-center gap-1">
-              <span className="inline-block h-1 w-1 rounded-full bg-muted-foreground/40" />
-              {exercise.rest_seconds}s rest
+          ) : (
+            <span className="px-4 text-center text-xs text-muted-foreground">
+              No illustration for this movement
             </span>
           )}
         </div>
-        {exercise.notes && (
-          <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
-        )}
-      </CardHeader>
-      <CardContent>
-        <SetLogger
-          exercise={exercise}
-          workoutLogId={workoutLogId}
-          existingSets={existingSets}
-        />
-      </CardContent>
+        <div className="min-w-0">
+          <CardHeader className="pb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle className="text-base leading-snug">
+                {exercise.name}
+              </CardTitle>
+              {exercise.muscle_group && (
+                <Badge variant="outline" className="text-xs shrink-0">
+                  {exercise.muscle_group}
+                </Badge>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              <span>
+                {exercise.sets} sets × {exercise.reps} reps
+              </span>
+              {exercise.rest_seconds ? (
+                <span className="flex items-center gap-1">
+                  <span className="inline-block h-1 w-1 rounded-full bg-muted-foreground/40" />
+                  {exercise.rest_seconds}s rest
+                </span>
+              ) : null}
+            </div>
+            {exercise.notes && (
+              <p className="text-xs text-muted-foreground mt-1">{exercise.notes}</p>
+            )}
+          </CardHeader>
+          <CardContent className="pt-0">
+            <SetLogger
+              exercise={exercise}
+              workoutLogId={workoutLogId}
+              existingSets={existingSets}
+            />
+          </CardContent>
+        </div>
+      </div>
     </Card>
   );
 }
